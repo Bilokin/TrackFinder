@@ -1,0 +1,223 @@
+#include <cmath>
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+//#include "Pad.hh"
+//#include "Calorimeter.hh"
+#include "MyTestingProcessor.hh"
+#include <vector>
+#include <algorithm>
+#include <EVENT/LCIO.h>
+#include <EVENT/LCCollection.h>
+#include <EVENT/CalorimeterHit.h>
+#include <IMPL/CalorimeterHitImpl.h>
+#include <IMPL/ClusterImpl.h>
+#include <IMPL/LCCollectionVec.h>
+#include <NVector_t.hh>
+#include <values.h>
+#include <LinearRegression.hh>
+#include <marlin/ConditionsProcessor.h>
+#include <cassert>
+#include <UTIL/CellIDDecoder.h>
+#include <EVENT/MCParticle.h>
+#include <cstdlib>
+
+
+using std::cout;
+using std::vector;
+using std::string;
+using std::endl;
+
+namespace CALICE {
+	MyTestingProcessor a_MyTestingProcessor_instance;
+
+	MyTestingProcessor::MyTestingProcessor() : Processor("MyTestingProcessor")
+	{
+	_description = "Processor to test!" ;
+	string _hfilename = "Test.root";
+	hfile = new TFile( _hfilename.c_str(), "RECREATE", _hfilename.c_str() ) ;
+	
+    registerInputCollection( LCIO::CALORIMETERHIT ,
+                             "CalorimeterHitCollection",
+                             "Name of the Calorimeter hit collection"  ,
+                             _colName ,
+                             std::string("ConvCalorimeterHits") ) ;
+			         EventNumber = 30;
+		     registerProcessorParameter( "EventNumber" ,
+		           "The maximum number of hits allowed in the TCMT. This cut reduces the double event background from parasitic muons)" ,
+			 EventNumber,
+			EventNumber);
+			LastFiredPadsNumber = 3;
+		registerProcessorParameter( "LastFiredPadsNumber" ,
+                         "The maximum number of hits in last layer",
+			                            LastFiredPadsNumber,
+			                            LastFiredPadsNumber);
+												    
+
+	}
+
+	void MyTestingProcessor::init() 
+	{
+	//	eventnumber = 30;
+	//	totaleventnumber = 0;
+		goodEventCount=0;
+		
+		int xyNumber = 18;
+		int zNumber = 30;
+		
+		vector< vector< float > > * something = new vector< vector< float > >();
+		vector< float > range;
+		range.push_back(-90.0);
+		range.push_back(90.0);
+		something->push_back(range);
+		range[0] = -90.0;
+		range[1] = 90.0;
+		something->push_back(range);
+		range[0] = 1300.0;
+		range[1] = 1500.0;
+		
+		something->push_back(range);
+		ECal.Initialize(xyNumber,xyNumber,zNumber,something);
+		ECalCopy.Initialize(xyNumber,xyNumber,zNumber,something);
+   		_Tree = new TTree( "tree", "tree" );
+		int _nhits=1000;   
+		//_Tree->Branch("nhits", &_nhits, "nhits/I");
+		_Tree->Branch("posx", _posx,"posx[nhits]/I");
+	        _Tree->Branch("posy", _posy,"posx[nhits]/I");
+	        _Tree->Branch("posz", _posz,"posx[nhits]/I");
+		
+		histECal = new TH3F("histECal","Calorimeter view",30,0,30,18,0,18,18,0,18);
+		histECal->SetFillColor(10);
+		histECal->SetMarkerColor(kBlue);
+		//for(int i =0; i<3; i++) for(int j = 0; j<2; j++) maxminPosition[i][j] = j*100;
+	}
+	void MyTestingProcessor::processRunHeader( LCRunHeader* run)
+  	{
+ 	}
+	void MyTestingProcessor::processEvent( LCEvent * evtP ) 
+	{
+		if(evtP)
+		{
+			try
+			{
+				float energy = 0.0;
+				int count = 0;
+				LCCollection* col_hits = evtP->getCollection( _colName ) ;
+				CellIDDecoder<CalorimeterHit> cd(col_hits);
+				
+				int IsInteraction = col_hits->parameters().getIntVal("isInteraction");
+				int InteractionZ = col_hits->parameters().getIntVal("InteractionLayer");
+				if(IsInteraction && InteractionZ < 7)
+				{
+					//goodEventCount++;
+					int numberOfHits = col_hits->getNumberOfElements();
+					TotalEventNumber++;
+					for ( int hit_i = 0 ; hit_i < numberOfHits ; hit_i++ )
+					{
+						vector< float > v;
+						CalorimeterHit *aHit = dynamic_cast<CalorimeterHit*>( col_hits->getElementAt( hit_i ));
+					
+			        	        int waferx = cd(aHit)["S-1"];
+				                int wafery = cd(aHit)["M"]-1;
+				                int padx = cd(aHit)["I"]-1;
+				                int pady = cd(aHit)["J"]-1;
+					
+						ECalCopy.LightThePad(waferx * 6 + padx,wafery * 6 + pady, cd(aHit)["K-1"], aHit->getEnergy());
+						energy += aHit->getEnergy();
+						Coordinates.push_back(v);
+	
+					}
+
+					if(ECalCopy.GetPads(28)->size()>LastFiredPadsNumber) 
+					{
+						goodEventCount++;
+						if(goodEventCount == EventNumber)
+						{
+							for ( int hit_i = 0 ; hit_i < numberOfHits ; hit_i++ )
+							{
+								 CalorimeterHit *aHit = dynamic_cast<CalorimeterHit*>( col_hits->getElementAt( hit_i ));
+								 int waferx = cd(aHit)["S-1"];
+		                                                 int wafery = cd(aHit)["M"]-1;
+		                                                 int padx = cd(aHit)["I"]-1;
+		                                                 int pady = cd(aHit)["J"]-1;
+								 ECal.LightThePad(waferx * 6 + padx,wafery * 6 + pady, cd(aHit)["K-1"], aHit->getEnergy());
+							}
+						}
+					}
+
+					ECalCopy.DimAllPads();
+
+					if(count > 0.0) cout << "Total: " << count << '\n';
+					energyDeposition.push_back(energy);
+				}
+			}
+			catch(lcio::DataNotAvailableException err)
+			{
+//				cout<< "Exception: no collection!\n";
+			}
+		}
+	}
+	
+	void MyTestingProcessor::end() 
+	{
+		int number = energyDeposition.size();
+		histEnergy = new TH1F("histEnergy","Energy per event",100,0,energyDeposition.size());
+		histEnergy->SetFillColor(50);
+		cout << "Good Event Count: " << goodEventCount << '\n';
+
+		histEnergyProfile = new TH1F("Eprofile","Energy per z",30,0,30);
+                histEnergyProfile->SetFillColor(50);
+		
+                histX = new TH1F("histX","X per event",18,-100,100);
+                histX->SetFillColor(50);                
+		histY = new TH1F("histY","Z per event",18,-100,100);
+                histY->SetFillColor(50);
+                histZ = new TH1F("histZ","Z per event",30,1280,1540);
+                histZ->SetFillColor(50);
+		cout<<"---------------------------------------------\n";
+		//vector < float > energyDepPerZ;
+
+		for(int i =0; i<ECal.GetPads()->size(); i++)
+		{
+			MyCalorimeter::Pad * pad = ECal.GetPads()->at(i);
+			histECal->Fill(pad->GetCoordinates().at(2),pad->GetCoordinates().at(1),pad->GetCoordinates().at(0), (pad->GetEnergy()>0.0)?0.50:0.0);
+			
+			histEnergyProfile->Fill(pad->GetCoordinates().at(2),pad->GetEnergy());
+			
+			cout<<"Pad #"<<pad->GetCoordinates().at(0)<<'.'<<pad->GetCoordinates().at(1)<<'.'<<pad->GetCoordinates().at(2)<<" : "<<pad->GetEnergy()<<'\n'; 
+			_posx[i] = pad->GetCoordinates().at(0);
+			_posy[i] = pad->GetCoordinates().at(1);
+			_posz[i] = pad->GetCoordinates().at(2);
+		}
+		_Tree->Fill();
+		cout << "Total: " << ECal.GetPads()->size() << '\n';
+		for(int i = 0; i< energyDeposition.size(); i++)
+		{
+//			cout << "Particle #" << i << " energy: " << energyDeposition[i] << endl;
+			histEnergy->Fill( energyDeposition[i]);
+		}
+               for(int i = 0; i< Coordinates.size(); i++)
+               {
+                        //cout << "Particle #" << i << " energy: " << energyDeposition[i] << endl;
+                        histX->Fill( Coordinates[i][0]);
+                        histY->Fill( Coordinates[i][1]);
+                        histZ->Fill( Coordinates[i][2]);
+	       }
+																							
+		cout << "EventNumber" << EventNumber << "\n";
+		hfile->cd();
+		_Tree->Write();
+		histECal->Write();
+		histEnergy->Write();
+		histEnergyProfile->Write();
+		histX->Write(); 
+		histY->Write();
+		histZ->Write();
+
+		hfile->Write();
+		hfile->Close();
+	}
+  
+
+		
+}
