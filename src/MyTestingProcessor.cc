@@ -97,6 +97,8 @@ namespace CALICE {
 		_Tree->Branch("number",_number,"_number[clusterTotal]/I");
 		_Tree->Branch("type",_type,"_type[clusterTotal]/I");
 		_Tree->Branch("endZ",_endZ,"_endZ[clusterTotal]/I");
+		_Tree->Branch("phi",_phi,"_phi[clusterTotal]/F");
+		_Tree->Branch("teta",_teta,"_teta[clusterTotal]/F");
 		//_Tree->Branch("clusters", _clusters);
 		printParameters();
 		goodEventCount=0;
@@ -223,6 +225,8 @@ namespace CALICE {
 			_number[i] = clusters->at(i)->GetNumberOfPads();
 			_sigma[i] = clusters->at(i)->GetSigma();
 			_type[i] =  clusters->at(i)->GetType();
+			_phi[i] = clusters->at(i)->GetAngles()[0];
+			_teta[i] = clusters->at(i)->GetAngles()[1];
 			std::cout<< "Number of pads of cluster: " <<  clusters->at(i)->GetNumberOfPads()<< '\n';
 			std::cout<< "Module of cluster: " <<clusters->at(i)->GetLength() << '\n';
 			std::cout<< "Sigma of cluster: " <<  clusters->at(i)->GetSigma() <<  '\n';

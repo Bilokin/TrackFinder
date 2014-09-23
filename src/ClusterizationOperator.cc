@@ -36,7 +36,7 @@ namespace MyCalorimeter
 			if (!hasPadInClusters(pad))
 			{
 				Cluster * cluster = new Cluster(myClusterCount++);
-				std::cout << "Adding another cluster\n";
+				//std::cout << "Adding another cluster\n";
 				myClusters->push_back(cluster);
 
 				clusterizeRecursion(cluster,pad);
@@ -130,7 +130,7 @@ namespace MyCalorimeter
 			Pad * neighbour = active->at(i);
 			if (!hasPadInClusters(neighbour))
 			{
-				std::cout << "Adding pad to cluster\n";
+	//			std::cout << "Adding pad to cluster\n";
 				cluster->AddPad(neighbour);
 				clusterizeRecursion(cluster, neighbour);
 			}

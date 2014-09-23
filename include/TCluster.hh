@@ -18,9 +18,10 @@ namespace MyCalorimeter
 		//	Methods
 		//
 		void Initialize(int type, int number, float sigma, float length);
+		void SetAngles(std::vector< float > & angles);
 		void SetEndPoint(int x, int y, int z);
 		void SetStartPoint(int x, int y, int z);
-
+		Float_t * GetAngles();
 		Int_t GetType();
 		Int_t * GetStartPoint();
 		Int_t * GetEndPoint();
@@ -37,6 +38,7 @@ namespace MyCalorimeter
 		//	Data
 		//
 		static const int DIM = 3 ;
+		Float_t myAngles[2];
 		Int_t myType;
 		Int_t myStart[DIM];
 		Int_t myEnd[DIM];

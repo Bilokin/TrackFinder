@@ -54,7 +54,16 @@ namespace MyCalorimeter
 		module = sqrt(module);
 		return module;
 	}
-
+	vector< float > MathOperator::getAngles(vector< float > & direction)
+	{
+		vector< float > result;
+		float epsilon = 0.001;
+		float phi = (direction[0] < epsilon && direction[0] > 0.0 - epsilon)? 1.5708: atan(direction[1] / direction[0]);
+		float teta = acos(direction[2]);
+		result.push_back(phi);
+		result.push_back(teta);
+		return result;
+	}
 	vector< float > MathOperator::getDirection(vector< int > & vectorPoint1, vector< int > & vectorPoint2)
 	{
 		/*double * arr1 = MathOperator::castIntToDouble(&vectorPoint1[0]);

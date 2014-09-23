@@ -30,6 +30,7 @@ namespace MyCalorimeter
 		{
 			cluster.SetEndPoint(myEnd->at(0),myEnd->at(1),myEnd->at(2));
 			cluster.SetStartPoint(myStart->at(0),myStart->at(1),myStart->at(2));
+			cluster.SetAngles(myAngles);
 			cluster.Initialize(myType,myNumberAfterCut,mySigma,myLength);
 		}
 		else 
@@ -155,11 +156,13 @@ namespace MyCalorimeter
 		return count;
 	}
 
-	void Cluster::SetPropertiesForSave(float length, float sigma, int number)
+	void Cluster::SetPropertiesForSave(float length, float sigma, int number, float phi, float teta)
 	{
 		myLength = length;
-		 mySigma = sigma;
+		mySigma = sigma;
 		myNumberAfterCut = number;
+		myAngles.push_back(phi);
+		myAngles.push_back(teta);
 	}
 	
 	void Cluster::SetStatus(ClusterType type)

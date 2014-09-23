@@ -33,7 +33,7 @@ namespace MyCalorimeter
 	//	Methods
 	//
 		void Assign(TObject & object);
-		void SetPropertiesForSave(float length, float sigma, int number);
+		void SetPropertiesForSave(float length, float sigma, int number, float phi, float teta);
 
 		void AddPad(Pad * pad);
 		void DiscardLastPad();
@@ -60,7 +60,7 @@ namespace MyCalorimeter
 		float myLength;
 		float mySigma;
 		int myNumberAfterCut;
-		
+		std::vector< float > myAngles;
 		ClusterType myType;
 	};
 }

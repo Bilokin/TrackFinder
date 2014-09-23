@@ -108,7 +108,10 @@ namespace MyCalorimeter
 			/*myPads->push_back(numberOfPads);
 			myModules->push_back(module);
 			mySigmas->push_back(trackLikeness);*/
-			cluster->SetPropertiesForSave(module,trackLikeness,numberOfPads);
+			vector< float > directionFloat = MathOperator::getDirection(*start, *end);
+			vector< float > angles = MathOperator::getAngles(directionFloat);
+			//std::cout << "Cluster direction: " << directionFloat[0]<< ' ' << directionFloat[1] << ' ' << directionFloat[2] <<"; angles: " << angles[0] << ' ' << angles[1] << '\n';
+			cluster->SetPropertiesForSave(module,trackLikeness,numberOfPads, angles[0], angles[1]);
 			if (trackLikeness > myTrackLikenessCut)// - myInvalidClusterCut))
 			{
 				std::cout << "Cluster set as track like with " << trackLikeness << " probability\n";
@@ -116,7 +119,6 @@ namespace MyCalorimeter
 			}
 			else 
 			{
-				vector< float > directionFloat = MathOperator::getDirection(*start, *end);
 				float deviation = getDeviationOfCluster(cluster, directionFloat, start, energyCut);
 				if (( deviation < myDeviationCutForDoubleTracks ) && ( module > (float)myMaximumLayerCut ) && ( trackLikeness - myEpsilonTL*numberOfPads < myTrackLikenessCutForDoubleTracks) ) 
 				{
@@ -148,7 +150,7 @@ namespace MyCalorimeter
 			if ((cluster->GetStatus() == TRACKLIKE_CLUSTER) || (cluster->GetStatus() == TWOMIPSLIKE_CLUSTER) ) 
 			{
 				std::cout << "\nBegin check for merging........................\n";
-				std::cout << "Cluster with id "<<  cluster->GetID() << " is track\n";
+				//std::cout << "Cluster with id "<<  cluster->GetID() << " is track\n";
 				vector< int > * start = cluster->GetStart();
 				vector< int > * end = cluster->GetEnd();
 				if (start && end)
@@ -209,7 +211,7 @@ namespace MyCalorimeter
 	                float module = MathOperator::getModule(vector1);
 			float observable = sqrt(distanceFromEnd*distanceFromEnd-anotherDeviation*anotherDeviation)+sqrt(distanceFromStart*distanceFromStart-anotherDeviation*anotherDeviation) - 1.0;
 			
-			std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
+			//std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
 			bool result = ( sine < myMergingSineCut ) && ( observable > module);
 			return result;
 		}
@@ -224,7 +226,7 @@ namespace MyCalorimeter
 		vector< int > point = pads[0]->GetCoordinates();
 		vector< int > initial(point);
 		vector< int > final(point);
-		std::cout << "ClusterAnalysisOperator::getEndPoints\n";
+		//std::cout << "ClusterAnalysisOperator::getEndPoints\n";
 		for (int i = 0; i < pads.size(); i++)
 		{
 			for (int j = i+1; j < pads.size(); j++)
@@ -321,17 +323,17 @@ namespace MyCalorimeter
 		if (cluster) 
 		{
 			vector< vector< int > > points = getEndPoints(cluster, energyCut);
-			 std::cout << "Setting end points... start: ";
+			 //std::cout << "Setting end points... start: ";
 			 for (int i = 0; i < 3; i++) 
 			 {
 			 	std::cout << points[0][i] << ' ';
 			 }
-			 std::cout << "end: ";
+			 //std::cout << "end: ";
 			 for (int i = 0; i < 3; i++) 
 			 {	
 			 	std::cout << points[1][i] << ' ';
 			 }
-			 std::cout << " \n";
+			 //std::cout << " \n";
 			cluster->SetEndPoints(new vector< int >(points[0]), new vector< int >(points[1]));
 		}
 	}

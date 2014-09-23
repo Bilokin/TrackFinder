@@ -1,4 +1,5 @@
 #include "TCluster.hh"
+using std::vector;
 //ClassImp(MyCalorimeter::TCluster);
 namespace MyCalorimeter 
 {
@@ -30,6 +31,17 @@ namespace MyCalorimeter
 		myStart[0] = x;
 		myStart[1] = y;
 		myStart[2] = z;
+	}
+
+	void TCluster::SetAngles(vector< float > & angles)
+	{
+		myAngles[0] = angles[0];
+		myAngles[1] = angles[1];
+	}
+
+	Float_t * TCluster::GetAngles()
+	{
+		return myAngles;
 	}
 
 	Int_t TCluster::GetType()

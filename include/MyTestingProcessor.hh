@@ -74,6 +74,7 @@ namespace CALICE {
         TTree* _Tree;
         //TTree* _MCTree;
         static const int MAXN = 10000 ;
+        static const int MINN = 100 ;
         int _posx[MAXN];   // hit position x, in mm, 0 is the center of ECAL
         int _posy[MAXN];   // hit position y, in mm, 0 is the center of ECAL
         int _posz[MAXN];   // hit position z, in mm, starting at the frount of ECAL
@@ -96,17 +97,18 @@ namespace CALICE {
 	int _nhits;	
 	int goodEventCount;
 	int _interaction;
-	float _sigma[MAXN];
-	float _module[MAXN];
-	int _number[MAXN];
-	int _type[MAXN];
-	int _startY[MAXN];
-	int _startX[MAXN];
-	int _startZ[MAXN];
-	int _endY[MAXN];
-	int _endX[MAXN];
-	int _endZ[MAXN];
-
+	float _sigma[MINN];
+	float _module[MINN];
+	int _number[MINN];
+	int _type[MINN];
+	int _startY[MINN];
+	int _startX[MINN];
+	int _startZ[MINN];
+	int _endY[MINN];
+	int _endX[MINN];
+	int _endZ[MINN];
+	float _teta[MINN];
+	float _phi[MINN];
 	float _angleCut;
 	float _ekinCut;
 	float _distanceCut;
