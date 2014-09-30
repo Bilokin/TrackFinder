@@ -105,12 +105,8 @@ namespace MyCalorimeter
 			std::cout << "Start analyzing for tracks... Cluster has " << numberOfPads << " mip pads out of " << cluster->GetNumberOfPads() << " pads total\n";
 			std::cout << "Cluster module: " << module << '\n';
 			float trackLikeness = module / (float)( numberOfPads - 1 ) + myEpsilonTL*numberOfPads;
-			/*myPads->push_back(numberOfPads);
-			myModules->push_back(module);
-			mySigmas->push_back(trackLikeness);*/
 			vector< float > directionFloat = MathOperator::getDirection(*start, *end);
 			vector< float > angles = MathOperator::getAngles(directionFloat);
-			//std::cout << "Cluster direction: " << directionFloat[0]<< ' ' << directionFloat[1] << ' ' << directionFloat[2] <<"; angles: " << angles[0] << ' ' << angles[1] << '\n';
 			cluster->SetPropertiesForSave(module,trackLikeness,numberOfPads, angles[0], angles[1]);
 			if (trackLikeness > myTrackLikenessCut)// - myInvalidClusterCut))
 			{
@@ -197,21 +193,23 @@ namespace MyCalorimeter
 	{
 		if (start && end && another) 
 		{
-			
+			if (another->GetNumberOfPads() > myTrackLikeLengthCut) 
+			{
+				return false; // Delete for muons!!!
+			}
 			float anotherDeviation = getDeviationOfCluster(another, direction, start, energyCut);
 		 	float distanceFromEnd = getMeanDistance(end, another);
 			float distanceFromStart = getMeanDistance(start, another);
 			float sine = anotherDeviation / distanceFromEnd;
-			//float module = getModule( direction );
 			vector < float > vector1;
 			for (int i = 0; i < 3; i++)
 	                {
 	                        vector1.push_back((float)(start->at(i) - end->at(i)));
 	                }
 	                float module = MathOperator::getModule(vector1);
-			float observable = sqrt(distanceFromEnd*distanceFromEnd-anotherDeviation*anotherDeviation)+sqrt(distanceFromStart*distanceFromStart-anotherDeviation*anotherDeviation) - 1.0;
+			float observable = sqrt(distanceFromEnd*distanceFromEnd-anotherDeviation*anotherDeviation)+sqrt(distanceFromStart*distanceFromStart-anotherDeviation*anotherDeviation) - 0.5;
 			
-			//std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
+			std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
 			bool result = ( sine < myMergingSineCut ) && ( observable > module);
 			return result;
 		}
