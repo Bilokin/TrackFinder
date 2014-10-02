@@ -8,24 +8,24 @@ using MyCalorimeter::Pad;
 	//
 		Pad::Pad (int x, int y, int z)
 		{
-			coordinates.push_back(x);
-			coordinates.push_back(y);
-			coordinates.push_back(z);
-			energy = 0.0;
+			myCoordinates.push_back(x);
+			myCoordinates.push_back(y);
+			myCoordinates.push_back(z);
+			myEnergy = 0.0;
 			isShowerPad = false;
 		}
 		
 		Pad::Pad (int x, int y, int z, vector<float> * sizes)
 		{
-			coordinates.push_back(x);
-			coordinates.push_back(y);
-			coordinates.push_back(z);
-			energy = 0.0;
+			myCoordinates.push_back(x);
+			myCoordinates.push_back(y);
+			myCoordinates.push_back(z);
+			myEnergy = 0.0;
 		}
 		
 		Pad::~Pad ()
 		{
-			delete neighbours;
+			delete myNeighbours;
 		}
 		
 	//
@@ -37,33 +37,33 @@ using MyCalorimeter::Pad;
 		}
 		vector<int> & Pad::GetCoordinates()
 		{
-			return coordinates;
+			return myCoordinates;
 		}
 		float Pad::GetEnergy() const
 		{
-			return energy;
+			return myEnergy;
 		}
 		void Pad::SetEnergy(float someEnergy)
 		{
-			energy = someEnergy;
+			myEnergy = someEnergy;
 		}
 		void Pad::Dim()
 		{
-			energy = 0.0;
+			myEnergy = 0.0;
 			isShowerPad = false;
 		}
 		vector<vector<vector<Pad*> > > * Pad::GetNeighbours()
 		{
-			return neighbours;
+			return myNeighbours;
 		}
 		bool Pad::IsActive() const
 		{
-			return energy > 0.0 && !isShowerPad;
+			return myEnergy > 0.0 && !isShowerPad;
 		}
 
 		void Pad::AddNeighbours(vector< vector< vector< Pad*> > > * array )
 		{
-			neighbours = array;
+			myNeighbours = array;
 		}
 		
 
