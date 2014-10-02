@@ -29,10 +29,12 @@ class Pad
 	//	Methods
 	//
 		vector<int> & GetCoordinates();
-		float GetEnergy();
+		float GetEnergy() const;
 		void SetEnergy(float someEnergy);
+		void Dim();
+		void SetIsShowerPad(bool value);
 		vector<vector<vector<Pad*> > > * GetNeighbours();
-		bool IsActive();
+		bool IsActive() const;
 		void AddNeighbours(vector<vector<vector<Pad*> > > * array );
 	private:
 	//
@@ -41,6 +43,7 @@ class Pad
 		vector<int> coordinates;
 		vector<float> * dimensions;
 		float energy;
+		bool isShowerPad;
 		vector<vector<vector<Pad*> > > * neighbours;
 	//
 	//	Private methods

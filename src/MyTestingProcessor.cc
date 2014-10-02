@@ -159,7 +159,8 @@ namespace CALICE {
 				                int pady = cd(aHit)["J"]-1;
 						ECalCopy.LightThePad(waferx * 6 + padx,wafery * 6 + pady, cd(aHit)["K-1"], aHit->getEnergy());
 						energy += aHit->getEnergy();
-						Coordinates.push_back(v);
+						std::cout<< "Z: " << cd(aHit)["K-1"] << '\n';
+						//Coordinates.push_back(v);
 					}
 					if(ECalCopy.GetNumberOfActivePadsSince(LastEventsFromLayer)>LastFiredPadsNumber) 
 					{
