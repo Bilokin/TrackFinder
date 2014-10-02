@@ -40,11 +40,11 @@ class Pad
 	//
 	//	Members
 	//
-		vector<int> coordinates;
-		vector<float> * dimensions;
-		float energy;
+		vector<int> myCoordinates;
+		vector<float> * myDimensions;
+		float myEnergy;
 		bool isShowerPad;
-		vector<vector<vector<Pad*> > > * neighbours;
+		vector<vector<vector<Pad*> > > * myNeighbours;
 	//
 	//	Private methods
 	//

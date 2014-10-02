@@ -26,25 +26,25 @@ namespace MyCalorimeter
 			void Calorimeter::Initialize(int xNumberOfPads, int yNumberOfPads, int zNumberOfPads, vector< vector< float > > * regionForCalorimeter)
 			{
 			vector<float> * PadDimensions = new vector< float>();
-			PositiveEnergyPads = new vector< Pad* >();
-			CalNumberOfPads.push_back(xNumberOfPads);
-			CalNumberOfPads.push_back(yNumberOfPads);
-			CalNumberOfPads.push_back(zNumberOfPads);
-			RegionForCalorimeter = regionForCalorimeter;
+			myPositiveEnergyPads = new vector< Pad* >();
+			myCalNumberOfPads.push_back(xNumberOfPads);
+			myCalNumberOfPads.push_back(yNumberOfPads);
+			myCalNumberOfPads.push_back(zNumberOfPads);
+			myRegionForCalorimeter = regionForCalorimeter;
 			
 			for (unsigned int i = 0; i < 3; i += 1)
 			{
 				if (regionForCalorimeter->at(i).at(1)>regionForCalorimeter->at(i).at(0))
 				{
-					CalDimensions.push_back(regionForCalorimeter->at(i).at(1)-regionForCalorimeter->at(i).at(0));
+					myCalDimensions.push_back(regionForCalorimeter->at(i).at(1)-regionForCalorimeter->at(i).at(0));
 					
 				}
 				else
 				{
-					CalDimensions.push_back(regionForCalorimeter->at(i).at(0)-regionForCalorimeter->at(i).at(1));
+					myCalDimensions.push_back(regionForCalorimeter->at(i).at(0)-regionForCalorimeter->at(i).at(1));
 				};
-				//controller.View("CalDimensions: ", CalDimensions[i]);
-				PadDimensions->push_back(CalDimensions[i]/CalNumberOfPads[i]);
+				//controller.View("myCalDimensions: ", myCalDimensions[i]);
+				PadDimensions->push_back(myCalDimensions[i]/myCalNumberOfPads[i]);
 				//controller.View("PadDimensions: ", PadDimensions->at(i));
 			}
 			
@@ -67,7 +67,7 @@ namespace MyCalorimeter
 			vvv->push_back(vv);
 			//controller.View("New vector with vector with vector with pad size: ", vvv->size());
 			}
-			CalPads = vvv;
+			myCalPads = vvv;
 			assertNeighboursSystem();
 			}
 			
@@ -75,24 +75,24 @@ namespace MyCalorimeter
 			
 			Pad * Calorimeter::GetPad(int x, int y, int z)
 			{
-				return CalPads->at(x).at(y).at(z);
+				return myCalPads->at(x).at(y).at(z);
 			}
 		
 			vector<Pad *>* Calorimeter::GetPads()
 			{
-				return PositiveEnergyPads;	
+				return myPositiveEnergyPads;	
 			}
 			
 			int Calorimeter::GetNumberOfActivePadsSince(int z)
                         {
                          	//vector< Pad * > * tmp = new vector<Pad * >();
 				int count = 0;
-				for(int i = 0; i < PositiveEnergyPads->size(); i++)
+				for(int i = 0; i < myPositiveEnergyPads->size(); i++)
 				{
-					if(PositiveEnergyPads->at(i)->GetCoordinates().at(2)>z)
+					if(myPositiveEnergyPads->at(i)->GetCoordinates().at(2)>z)
 					{
 						count++;
-						//tmp->push_back(PositiveEnergyPads->at(i));
+						//tmp->push_back(myPositiveEnergyPads->at(i));
 					}
 				}
 				return count;
@@ -102,11 +102,11 @@ namespace MyCalorimeter
 			vector< Pad* > Calorimeter::GetActivePadsFromLayer(int z)
 			{
 				vector< Pad * > tmp;
-				for(int i = 0; i < PositiveEnergyPads->size(); i++)
+				for(int i = 0; i < myPositiveEnergyPads->size(); i++)
 				{
-				        if(PositiveEnergyPads->at(i)->GetCoordinates().at(2) == z)
+				        if(myPositiveEnergyPads->at(i)->GetCoordinates().at(2) == z)
 				        {
-				                tmp.push_back(PositiveEnergyPads->at(i));
+				                tmp.push_back(myPositiveEnergyPads->at(i));
 				        }
 				}
 				return tmp;
@@ -121,12 +121,12 @@ namespace MyCalorimeter
 					for (unsigned int i = 0; i < 3; i += 1)
 					{
 					
-						//std::cout << "RegionForCalorimeter->at("<<i<<")[0]: " << RegionForCalorimeter->at(i)[0] << '\n';
+						//std::cout << "myRegionForCalorimeter->at("<<i<<")[0]: " << myRegionForCalorimeter->at(i)[0] << '\n';
 						//std::cout << "position["<<i<<"]: " << position[i] << '\n';
-						//std::cout<< std::floor((position[i] - RegionForCalorimeter->at(i)[0])/(CalDimensions[i]/CalNumberOfPads[i])) << std::endl;
-						positionInArray.push_back( (int)((position[i] - RegionForCalorimeter->at(i)[0])/(CalDimensions[i]/CalNumberOfPads[i])) );
-						//std::cout << "Region["<<i<<"]: " << position[i]- RegionForCalorimeter->at(i)[0] << '\n';
-						//std::cout << "CalNumberOfPads["<<i<<"]: " << CalNumberOfPads[i] << '\n';
+						//std::cout<< std::floor((position[i] - myRegionForCalorimeter->at(i)[0])/(myCalDimensions[i]/myCalNumberOfPads[i])) << std::endl;
+						positionInArray.push_back( (int)((position[i] - myRegionForCalorimeter->at(i)[0])/(myCalDimensions[i]/myCalNumberOfPads[i])) );
+						//std::cout << "Region["<<i<<"]: " << position[i]- myRegionForCalorimeter->at(i)[0] << '\n';
+						//std::cout << "myCalNumberOfPads["<<i<<"]: " << myCalNumberOfPads[i] << '\n';
 					}
 				LightThePad(positionInArray[0],positionInArray[1],positionInArray[2],energy);
 				}
@@ -136,7 +136,7 @@ namespace MyCalorimeter
 			{
 				Pad * pad = Calorimeter::GetPad(x,y,z);
 			//	std::cout << "Z of pad: " << pad->GetCoordinates()[2] << " X of pad: " << pad->GetCoordinates()[0] <<  " X of pad: " << pad->GetCoordinates()[0]
-				if(pad->GetEnergy()==0.0) PositiveEnergyPads->push_back(pad);
+				if(pad->GetEnergy()==0.0) myPositiveEnergyPads->push_back(pad);
 				pad->SetEnergy(energy+pad->GetEnergy());
 			}
 			
@@ -146,9 +146,9 @@ namespace MyCalorimeter
 				vector < float > * position = new vector < float >();
 				for (unsigned int i = 0; i < 3; i += 1)
 				{
-					//controller.View("CalDimensions: ", CalDimensions[i]);
-					//std::cout<< CalDimensions[i]/CalNumberOfPads[i] << std::endl;
-					position->push_back( std::floor(RegionForCalorimeter->at(i)[0]+coordinatesOfPad[i]*(CalDimensions[i]/CalNumberOfPads[i])));
+					//controller.View("myCalDimensions: ", myCalDimensions[i]);
+					//std::cout<< myCalDimensions[i]/myCalNumberOfPads[i] << std::endl;
+					position->push_back( std::floor(myRegionForCalorimeter->at(i)[0]+coordinatesOfPad[i]*(myCalDimensions[i]/myCalNumberOfPads[i])));
 				}
 				return position;
 			}
@@ -164,27 +164,27 @@ namespace MyCalorimeter
 			
 			void Calorimeter::DimAllPads()
 			{
-				for (unsigned int i = 0; i < CalNumberOfPads[0]; i += 1)
+				for (unsigned int i = 0; i < myCalNumberOfPads[0]; i += 1)
 				{
-					for (unsigned int j = 0; j < CalNumberOfPads[1]; j += 1)
+					for (unsigned int j = 0; j < myCalNumberOfPads[1]; j += 1)
 					{
-						for (unsigned int k = 0; k < CalNumberOfPads[2]; k += 1)
+						for (unsigned int k = 0; k < myCalNumberOfPads[2]; k += 1)
 						{
-							CalPads->at(i).at(j).at(k)->SetEnergy(0.0);
+							myCalPads->at(i).at(j).at(k)->SetEnergy(0.0);
 						}
 					}
 				}
-				PositiveEnergyPads->clear();
+				myPositiveEnergyPads->clear();
 			}
 			
 			vector< int > Calorimeter::GetDimensions() const
 			{
-				return CalNumberOfPads;
+				return myCalNumberOfPads;
 			}
 			
 			bool Calorimeter::HasPad(int x, int y, int z)
 			{
-				return (x>=0 && x < CalNumberOfPads[0]) && (y>=0 && y < CalNumberOfPads[1]) && (z>=0 && z < CalNumberOfPads[2]);
+				return (x>=0 && x < myCalNumberOfPads[0]) && (y>=0 && y < myCalNumberOfPads[1]) && (z>=0 && z < myCalNumberOfPads[2]);
 			}
 
 			void Calorimeter::assertNeighboursPadsTo(int x, int y, int z)
@@ -217,11 +217,11 @@ namespace MyCalorimeter
 			}
 			void Calorimeter::assertNeighboursSystem()
 			{
-				for (int i = 0; i < CalNumberOfPads[0]; i++)
+				for (int i = 0; i < myCalNumberOfPads[0]; i++)
 				{
-					for (int j = 0; j < CalNumberOfPads[1]; j++)
+					for (int j = 0; j < myCalNumberOfPads[1]; j++)
 					{
-						for (int k = 0; k < CalNumberOfPads[2]; k++)
+						for (int k = 0; k < myCalNumberOfPads[2]; k++)
 						{
 							assertNeighboursPadsTo(i,j,k);
 						}

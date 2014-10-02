@@ -38,11 +38,11 @@ namespace MyCalorimeter
 		//
 		//	Members
 		//
-			vector< vector< vector< Pad *> > > * CalPads;
-			vector< int > CalNumberOfPads;
-			vector< float > CalDimensions;
-			vector< vector< float > > * RegionForCalorimeter;
-			vector<Pad*>* PositiveEnergyPads;			
+			vector< vector< vector< Pad *> > > * myCalPads;
+			vector< int > myCalNumberOfPads;
+			vector< float > myCalDimensions;
+			vector< vector< float > > * myRegionForCalorimeter;
+			vector<Pad*>* myPositiveEnergyPads;			
 		//
 		//	Private methods
 		//
