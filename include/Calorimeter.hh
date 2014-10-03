@@ -32,7 +32,7 @@ namespace MyCalorimeter
 			vector< Pad * >* GetPads();
 			vector< Pad * > * GetTrackPads();
 			int GetNumberOfActivePadsSince(int z);
-			vector< Pad* > GetActivePadsFromLayer(int z, bool withShower = true);
+			vector< Pad* > GetActivePadsFromLayer(int z);
 			vector< float > * GetPadPosition(vector < int > & coordinatesOfPad);
 			vector< float > * GetPadPosition(int x, int y, int z);
 		private:
@@ -46,6 +46,7 @@ namespace MyCalorimeter
 			vector< Pad * > * myPositiveEnergyPads;			
 			vector< Pad * > * myTrackPads;
 			int myShowerLimit;
+			bool ExcludeAllShowers;
 		//
 		//	Private methods
 		//
