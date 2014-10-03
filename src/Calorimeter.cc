@@ -11,9 +11,13 @@ namespace MyCalorimeter
 		//
 		//	Constructors and destructor
 		//
-			Calorimeter::Calorimeter() {}
+			Calorimeter::Calorimeter() 
+			{
+				myShowerLimit = 6;
+			}
 			Calorimeter::Calorimeter(int xNumberOfPads, int yNumberOfPads, int zNumberOfPads, vector< vector< float > > * regionForCalorimeter)
 			{
+				myShowerLimit = 6;
 				Initialize(xNumberOfPads, yNumberOfPads, zNumberOfPads, regionForCalorimeter);
 			}
 			Calorimeter::~Calorimeter () 
@@ -27,6 +31,7 @@ namespace MyCalorimeter
 			{
 			vector<float> * PadDimensions = new vector< float>();
 			myPositiveEnergyPads = new vector< Pad* >();
+			myTrackPads = new vector< Pad* >();
 			myCalNumberOfPads.push_back(xNumberOfPads);
 			myCalNumberOfPads.push_back(yNumberOfPads);
 			myCalNumberOfPads.push_back(zNumberOfPads);
@@ -43,9 +48,7 @@ namespace MyCalorimeter
 				{
 					myCalDimensions.push_back(regionForCalorimeter->at(i).at(0)-regionForCalorimeter->at(i).at(1));
 				};
-				//controller.View("myCalDimensions: ", myCalDimensions[i]);
 				PadDimensions->push_back(myCalDimensions[i]/myCalNumberOfPads[i]);
-				//controller.View("PadDimensions: ", PadDimensions->at(i));
 			}
 			
 			vector< vector< vector< Pad *> >  > * vvv = new vector< vector< vector< Pad * > > >();
@@ -62,16 +65,39 @@ namespace MyCalorimeter
 						v.push_back(pad);
 					}
 				vv.push_back(v);
-				//controller.View("New vector with vector with pad size: ", vv.size());
 				}
-			vvv->push_back(vv);
-			//controller.View("New vector with vector with vector with pad size: ", vvv->size());
+				vvv->push_back(vv);
 			}
 			myCalPads = vvv;
 			assertNeighboursSystem();
 			}
 			
-			
+			void Calorimeter::checkIfShowerPad(Pad * pad)
+			{
+				vector< vector< vector< Pad *> > > * neighbours = pad->GetNeighbours();
+				vector< Pad * > active;
+				for (int i = 0; i < neighbours->size(); i++)
+				{
+					for (int j = 0; j < neighbours->at(i).size(); j++) 
+					{
+						for (int k = 0; k < neighbours->at(i).at(j).size(); k++) 
+						{
+							if (neighbours->at(i).at(j).at(k)->GetEnergy() > 0.0)
+							{
+								active.push_back(neighbours->at(i).at(j).at(k));
+							}
+							
+						}
+					}
+				}
+				if (active.size() > myShowerLimit)
+				{
+					for (int j = 0; j < active.size(); j++)
+					{
+						active[j]->SetIsShowerPad(true);
+					}
+				}
+			}
 			
 			Pad * Calorimeter::GetPad(int x, int y, int z)
 			{
@@ -82,7 +108,20 @@ namespace MyCalorimeter
 			{
 				return myPositiveEnergyPads;	
 			}
-			
+			vector< Pad * > * Calorimeter::GetTrackPads()
+			{
+				if (myTrackPads->size() == 0) 
+				{
+					for (int i = 0; i < myPositiveEnergyPads->size(); i++) 
+					{
+						if (myPositiveEnergyPads->at(i)->IsActive()) 
+						{
+							myTrackPads->push_back(myPositiveEnergyPads->at(i));
+						}
+					}
+				}
+				return myTrackPads;
+			}
 			int Calorimeter::GetNumberOfActivePadsSince(int z)
                         {
                          	//vector< Pad * > * tmp = new vector<Pad * >();
@@ -99,14 +138,15 @@ namespace MyCalorimeter
 				//return tmp;
                         }
 			
-			vector< Pad* > Calorimeter::GetActivePadsFromLayer(int z)
+			vector< Pad* > Calorimeter::GetActivePadsFromLayer(int z, bool withShower)
 			{
 				vector< Pad * > tmp;
 				for(int i = 0; i < myPositiveEnergyPads->size(); i++)
 				{
-				        if(myPositiveEnergyPads->at(i)->GetCoordinates().at(2) == z)
+					Pad * pad = myPositiveEnergyPads->at(i);
+				        if(pad->GetCoordinates().at(2) == z && (withShower || pad->IsActive()))
 				        {
-				                tmp.push_back(myPositiveEnergyPads->at(i));
+						tmp.push_back(pad);
 				        }
 				}
 				return tmp;
@@ -138,15 +178,14 @@ namespace MyCalorimeter
 			//	std::cout << "Z of pad: " << pad->GetCoordinates()[2] << " X of pad: " << pad->GetCoordinates()[0] <<  " X of pad: " << pad->GetCoordinates()[0]
 				if(pad->GetEnergy()==0.0) myPositiveEnergyPads->push_back(pad);
 				pad->SetEnergy(energy+pad->GetEnergy());
+				checkIfShowerPad(pad);
 			}
 			
 			vector< float > * Calorimeter::GetPadPosition(vector < int > & coordinatesOfPad)
 			{
-				//ViewController controller;
 				vector < float > * position = new vector < float >();
 				for (unsigned int i = 0; i < 3; i += 1)
 				{
-					//controller.View("myCalDimensions: ", myCalDimensions[i]);
 					//std::cout<< myCalDimensions[i]/myCalNumberOfPads[i] << std::endl;
 					position->push_back( std::floor(myRegionForCalorimeter->at(i)[0]+coordinatesOfPad[i]*(myCalDimensions[i]/myCalNumberOfPads[i])));
 				}
@@ -164,7 +203,11 @@ namespace MyCalorimeter
 			
 			void Calorimeter::DimAllPads()
 			{
-				for (unsigned int i = 0; i < myCalNumberOfPads[0]; i += 1)
+				for (int i = 0; i < myPositiveEnergyPads->size(); i++)
+				{
+					myPositiveEnergyPads->at(i)->Dim();
+				}
+				/*for (unsigned int i = 0; i < myCalNumberOfPads[0]; i += 1)
 				{
 					for (unsigned int j = 0; j < myCalNumberOfPads[1]; j += 1)
 					{
@@ -173,8 +216,9 @@ namespace MyCalorimeter
 							myCalPads->at(i).at(j).at(k)->SetEnergy(0.0);
 						}
 					}
-				}
+				}*/
 				myPositiveEnergyPads->clear();
+				myTrackPads->clear();
 			}
 			
 			vector< int > Calorimeter::GetDimensions() const

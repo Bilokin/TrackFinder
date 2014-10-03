@@ -29,9 +29,10 @@ namespace MyCalorimeter
 			void DimAllPads();
 			vector< int > GetDimensions() const;
 			bool HasPad(int x, int y, int z);
-			vector< Pad* >* GetPads();
+			vector< Pad * >* GetPads();
+			vector< Pad * > * GetTrackPads();
 			int GetNumberOfActivePadsSince(int z);
-			vector< Pad* > GetActivePadsFromLayer(int z);
+			vector< Pad* > GetActivePadsFromLayer(int z, bool withShower = true);
 			vector< float > * GetPadPosition(vector < int > & coordinatesOfPad);
 			vector< float > * GetPadPosition(int x, int y, int z);
 		private:
@@ -42,7 +43,9 @@ namespace MyCalorimeter
 			vector< int > myCalNumberOfPads;
 			vector< float > myCalDimensions;
 			vector< vector< float > > * myRegionForCalorimeter;
-			vector<Pad*>* myPositiveEnergyPads;			
+			vector< Pad * > * myPositiveEnergyPads;			
+			vector< Pad * > * myTrackPads;
+			int myShowerLimit;
 		//
 		//	Private methods
 		//
@@ -50,6 +53,7 @@ namespace MyCalorimeter
 			//Pad * findPad(int x, int y, int z);
 			void assertNeighboursPadsTo(int x, int y, int z);
 			void assertNeighboursSystem();
+			void checkIfShowerPad(Pad * pad);
 			
 	};
 }
