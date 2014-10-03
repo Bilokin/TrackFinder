@@ -56,22 +56,7 @@ namespace CALICE {
 			"MIP Energy Cut",
 			MIPEnergyCut,
 			MIPEnergyCut);
-		 _angleCut = 0.2;
-		 _ekinCut = 0.2;
-		 _distanceCut = 70;
 		
-		registerProcessorParameter( "angleCut",
-		        "Angle integration cut MC",
-			_angleCut,
-			_angleCut);
-		registerProcessorParameter( "ekinCut",
-			"E_kin cut MC",
-			_ekinCut,
-			_ekinCut);
-		registerProcessorParameter( "distanceCut",
-			"distance Cut MC",
-			_distanceCut,
-			_distanceCut);
 		registerProcessorParameter( "FirstInteractionLayer",
 			"Limit on interaction layer",
 			FirstInteractionLayer,
@@ -87,6 +72,10 @@ namespace CALICE {
 	        _Tree->Branch("posx", _posx,"posx[nhits]/I");
 	        _Tree->Branch("posy", _posy,"posy[nhits]/I");
 	        _Tree->Branch("posz", _posz,"posz[nhits]/I");
+		_Tree->Branch("nspads", &_nspads, "nspads/I");
+		_Tree->Branch("sposx", _posx2,"sposx[nspads]/I");
+		_Tree->Branch("sposy", _posy2,"sposy[nspads]/I");
+		_Tree->Branch("sposz", _posz2,"sposz[nspads]/I");
 		_Tree->Branch("energy", _energyHit, "energy[nhits]/F");
 		_Tree->Branch("energyDep", _energyDep,"energyDep[30]/F");
 		_Tree->Branch("clusterTotal", &_clustersTotal, "clusterTotal/I");
@@ -183,14 +172,12 @@ namespace CALICE {
 		}
 	}
 
-	void MyTestingProcessor::processCalorimeterHits(int InteractionZ, int numberOfHits)
+	void MyTestingProcessor::writeCalorimeter(int numberOfHits)
 	{
-		goodEventCount++;
-		_nhits = numberOfHits;
 		vector< MyCalorimeter::Pad * > * padsToWrite = ECalCopy.GetPads();
 		for (int i = 0; i < numberOfHits; i++)
 		{
-			MyCalorimeter::Pad * pad = padsToWrite->at(i);
+		        MyCalorimeter::Pad * pad = padsToWrite->at(i);
 			vector< int > points = pad->GetCoordinates();
 			_energyDep[points.at(2)] += pad->GetEnergy();
 			_energyHit[i] = pad->GetEnergy();
@@ -198,6 +185,23 @@ namespace CALICE {
 			_posy[i] = points.at(1);
 			_posz[i] = points.at(2);
 		}
+		vector< MyCalorimeter::Pad * > * anotherPads = ECalCopy.GetTrackPads();
+		_nspads = anotherPads->size();
+		for (int i = 0; i < _nspads; i++) 
+		{
+			MyCalorimeter::Pad * pad = padsToWrite->at(i);
+			vector< int > points = pad->GetCoordinates();
+			_posx2[i] = points.at(0);
+			_posy2[i] = points.at(1);
+			_posz2[i] = points.at(2);
+		}
+	}
+
+	void MyTestingProcessor::processCalorimeterHits(int InteractionZ, int numberOfHits)
+	{
+		goodEventCount++;
+		_nhits = numberOfHits;
+		writeCalorimeter(numberOfHits);
 		if (InteractionZ < 0 || InteractionZ > ECalCopy.GetDimensions()[2])
 		{
 		        InteractionZ = 15;

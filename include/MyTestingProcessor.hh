@@ -56,6 +56,7 @@ namespace CALICE {
 
   private:
 	void processCalorimeterHits(int InteractionZ, int numberOfHits);
+	void writeCalorimeter(int numberOfHits);
 	//bool applyPrimaryCutsTo(MCParticle * particle);
 	//void writeParticle(MCParticle * particle, int i);
 	//int applyIntegrationCuts(const vector<MCParticle*> & particle);
@@ -109,10 +110,10 @@ namespace CALICE {
 	int _endZ[MINN];
 	float _teta[MINN];
 	float _phi[MINN];
-	float _angleCut;
-	float _ekinCut;
-	float _distanceCut;
-	
+	int _nspads;
+	int _posx2[MINN]; // hit position x, in mm, 0 is the center of ECAL
+	int _posy2[MINN]; // hit position y, in mm, 0 is the center of ECAL
+	int _posz2[MINN]; // hit position z, in mm, starting at the frount of ECAL
 	MyCalorimeter::TCluster _clusters[MAXN];
 
 	MyCalorimeter::Calorimeter ECalCopy;
