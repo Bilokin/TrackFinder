@@ -75,21 +75,12 @@ namespace CALICE {
         TTree* _Tree;
         //TTree* _MCTree;
         static const int MAXN = 10000 ;
-        static const int MINN = 100 ;
+        static const int MINN = 1000 ;
         int _posx[MAXN];   // hit position x, in mm, 0 is the center of ECAL
         int _posy[MAXN];   // hit position y, in mm, 0 is the center of ECAL
         int _posz[MAXN];   // hit position z, in mm, starting at the frount of ECAL
 	float _energyHit[MAXN];
 	float _energyDep[30];
-	int _nMCparticlesTrue;
-	int _nMCparticles;
-	int _numberMCP_corrected;
-	float _energy[MAXN];
-	float _energy_kin[MAXN];
-	float _mass[MAXN];
-	float _zmomentum[MAXN];
-	int _charge[MAXN];
-	float _distance[MAXN];
 	vector< vector< float > > * volumeECal;
 	int _tracksCount;
 	int _clustersTotal;

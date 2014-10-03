@@ -20,7 +20,7 @@ namespace MyCalorimeter
 		myMinimumShowerModule = 5.0;
 		myMIPEnergyCut = 2.0;
 	        myMaximumLayerCut=15;
-	        myEpsilonTL = 0.015; 
+	        myEpsilonTL = 0.02; 
 		myTrackLikeLengthCut = 15;
 	        myTrackLikenessCut = 1.0;
 		myTrackLikenessCutForDoubleTracks = 0.55;

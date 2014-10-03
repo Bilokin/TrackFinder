@@ -148,8 +148,6 @@ namespace CALICE {
 				                int pady = cd(aHit)["J"]-1;
 						ECalCopy.LightThePad(waferx * 6 + padx,wafery * 6 + pady, cd(aHit)["K-1"], aHit->getEnergy());
 						energy += aHit->getEnergy();
-						std::cout<< "Z: " << cd(aHit)["K-1"] << '\n';
-						//Coordinates.push_back(v);
 					}
 					if(ECalCopy.GetNumberOfActivePadsSince(LastEventsFromLayer)>LastFiredPadsNumber) 
 					{
@@ -189,12 +187,17 @@ namespace CALICE {
 		_nspads = anotherPads->size();
 		for (int i = 0; i < _nspads; i++) 
 		{
-			MyCalorimeter::Pad * pad = padsToWrite->at(i);
+			MyCalorimeter::Pad * pad = anotherPads->at(i);
 			vector< int > points = pad->GetCoordinates();
+			if (points.at(2) > 29) 
+			{
+				std::cout<< "ACHTUNG!! Z = " <<points.at(2) << '\n'; 
+			}
 			_posx2[i] = points.at(0);
 			_posy2[i] = points.at(1);
 			_posz2[i] = points.at(2);
 		}
+		std::cout <<  numberOfHits - _nspads << " pads were excluded.\n";
 	}
 
 	void MyTestingProcessor::processCalorimeterHits(int InteractionZ, int numberOfHits)
@@ -232,15 +235,6 @@ namespace CALICE {
 			_type[i] =  clusters->at(i)->GetType();
 			_phi[i] = clusters->at(i)->GetAngles()[0];
 			_teta[i] = clusters->at(i)->GetAngles()[1];
-			std::cout<< "Number of pads of cluster: " <<  clusters->at(i)->GetNumberOfPads()<< '\n';
-			std::cout<< "Module of cluster: " <<clusters->at(i)->GetLength() << '\n';
-			std::cout<< "Sigma of cluster: " <<  clusters->at(i)->GetSigma() <<  '\n';
-
-			if (_number[i]> 200) 
-			{
-				std::cout<< "ACHTUNG!!!\n";
-			}
-			
 			if (_number[i] > 2) 
 			{
 				_endZ[i] = clusters->at(i)->GetEndPoint()[2];
