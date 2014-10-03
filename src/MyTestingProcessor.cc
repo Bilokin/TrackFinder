@@ -173,6 +173,8 @@ namespace CALICE {
 	void MyTestingProcessor::writeCalorimeter(int numberOfHits)
 	{
 		vector< MyCalorimeter::Pad * > * padsToWrite = ECalCopy.GetPads();
+		_nhits = numberOfHits;
+		float totalEnergy = 0.0;
 		for (int i = 0; i < numberOfHits; i++)
 		{
 		        MyCalorimeter::Pad * pad = padsToWrite->at(i);
@@ -182,28 +184,29 @@ namespace CALICE {
 			_posx[i] = points.at(0);
 			_posy[i] = points.at(1);
 			_posz[i] = points.at(2);
+			totalEnergy += pad->GetEnergy();
 		}
+		float selectedEnergy = 0.0;
 		vector< MyCalorimeter::Pad * > * anotherPads = ECalCopy.GetTrackPads();
 		_nspads = anotherPads->size();
 		for (int i = 0; i < _nspads; i++) 
 		{
 			MyCalorimeter::Pad * pad = anotherPads->at(i);
 			vector< int > points = pad->GetCoordinates();
-			if (points.at(2) > 29) 
-			{
-				std::cout<< "ACHTUNG!! Z = " <<points.at(2) << '\n'; 
-			}
 			_posx2[i] = points.at(0);
 			_posy2[i] = points.at(1);
 			_posz2[i] = points.at(2);
+			selectedEnergy += pad->GetEnergy();
+
 		}
-		std::cout <<  numberOfHits - _nspads << " pads were excluded.\n";
+		std::cout <<  numberOfHits - _nspads << " out of " << numberOfHits << " pads were excluded.\n";
+		std::cout << selectedEnergy/totalEnergy*100.0 << "\% of energy is selected.\n";
+
 	}
 
 	void MyTestingProcessor::processCalorimeterHits(int InteractionZ, int numberOfHits)
 	{
 		goodEventCount++;
-		_nhits = numberOfHits;
 		writeCalorimeter(numberOfHits);
 		if (InteractionZ < 0 || InteractionZ > ECalCopy.GetDimensions()[2])
 		{
