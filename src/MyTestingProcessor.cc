@@ -77,6 +77,7 @@ namespace CALICE {
 		_Tree->Branch("sposy", _posy2,"sposy[nspads]/I");
 		_Tree->Branch("sposz", _posz2,"sposz[nspads]/I");
 		_Tree->Branch("energy", _energyHit, "energy[nhits]/F");
+		_Tree->Branch("energy", _energyHit_exc, "energy_exc[nspadss]/F");
 		_Tree->Branch("energyDep", _energyDep,"energyDep[30]/F");
 		_Tree->Branch("clusterTotal", &_clustersTotal, "clusterTotal/I");
 		_Tree->Branch("tracksCount", &_tracksCount, "tracksCount/I");
@@ -196,6 +197,7 @@ namespace CALICE {
 			_posx2[i] = points.at(0);
 			_posy2[i] = points.at(1);
 			_posz2[i] = points.at(2);
+			_energyHit_exc[i] = pad->GetEnergy();
 			selectedEnergy += pad->GetEnergy();
 
 		}

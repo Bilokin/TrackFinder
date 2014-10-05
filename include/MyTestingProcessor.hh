@@ -80,6 +80,7 @@ namespace CALICE {
         int _posy[MAXN];   // hit position y, in mm, 0 is the center of ECAL
         int _posz[MAXN];   // hit position z, in mm, starting at the frount of ECAL
 	float _energyHit[MAXN];
+	float _energyHit_exc[MAXN];
 	float _energyDep[30];
 	vector< vector< float > > * volumeECal;
 	int _tracksCount;
