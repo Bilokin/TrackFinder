@@ -26,7 +26,7 @@ namespace MyCalorimeter
 	void Cluster::Assign(TObject & object)
 	{
 		TCluster & cluster = (TCluster&) object;
-		if (myType == TRACKLIKE_CLUSTER || myType == TWOMIPSLIKE_CLUSTER || myType == SHOWERLIKE_CLUSTER || myType == BLOBLIKE_CLUSTER) 
+		if (myType != INVALID_CLUSTER && myType != MERGED_CLUSTER) 
 		{
 			cluster.SetEndPoint(myEnd->at(0),myEnd->at(1),myEnd->at(2));
 			cluster.SetStartPoint(myStart->at(0),myStart->at(1),myStart->at(2));
@@ -55,7 +55,10 @@ namespace MyCalorimeter
 	{
 		myPads.pop_back();
 	}
-
+	const std::vector< float > * Cluster::GetAngles() const
+	{
+		return &myAngles;
+	}
 	vector< Pad * > Cluster:: GetAllPads()
 	{
 		return myPads;

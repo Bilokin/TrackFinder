@@ -27,7 +27,7 @@ namespace MyCalorimeter
 			int GetNumberOfClusters();
 			
 			vector< Cluster * > * GetClusters();
-			
+			void FindInitialMIP();
 			vector<float> * GetModuleFromClusters();
 			vector<int> * GetNumberOfPadsFromClusters();
 			vector<float> * GetTracklikenessFromClusters();

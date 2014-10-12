@@ -202,24 +202,24 @@ namespace CALICE {
 
 		}
 		std::cout <<  numberOfHits - _nspads << " out of " << numberOfHits << " pads were excluded.\n";
-		std::cout << selectedEnergy/totalEnergy*100.0 << "\% of energy is selected.\n";
+		std::cout << selectedEnergy/totalEnergy*100.0 << "% of energy is selected.\n";
 
 	}
 
 	void MyTestingProcessor::processCalorimeterHits(int InteractionZ, int numberOfHits)
 	{
 		goodEventCount++;
-		writeCalorimeter(numberOfHits);
 		if (InteractionZ < 0 || InteractionZ > ECalCopy.GetDimensions()[2])
 		{
 		        InteractionZ = 15;
 		}
-		MyCalorimeter::ClusterOperator opera(MIPEnergyCut, 8);
+		MyCalorimeter::ClusterOperator opera(MIPEnergyCut, 2);
 		std::cout<< "===============================================\n";
 		std::cout<< "Processing event #" << goodEventCount << '\n';
 		std::cout<< "===============================================\n";
+		writeCalorimeter(numberOfHits);
 		std::cout<< "Begin Clusterization\n";
-		for (int i = ECalCopy.GetDimensions()[2]-1; i > 8; i--)
+		for (int i = ECalCopy.GetDimensions()[2]-1; i > 2; i--)
 		{
 			vector< MyCalorimeter::Pad * > pads = ECalCopy.GetActivePadsFromLayer(i);
 			std::cout<< "Processing layer " << i << " with " << pads.size() << " pads...\n";
@@ -240,6 +240,7 @@ namespace CALICE {
 			_type[i] =  clusters->at(i)->GetType();
 			_phi[i] = clusters->at(i)->GetAngles()[0];
 			_teta[i] = clusters->at(i)->GetAngles()[1];
+			//std::cout<< "Number: " << clusters->at(i)->GetNumberOfPads() << " type: " << clusters->at(i)->GetType()<< '\n';
 			if (_number[i] > 2) 
 			{
 				_endZ[i] = clusters->at(i)->GetEndPoint()[2];
@@ -249,7 +250,6 @@ namespace CALICE {
 				_endZ[i] = -1;
 			}
 		}
-
 		std::cout<< "Number of clusters: " << _clustersTotal << '\n';
 		std::cout<< "Number of track like clusters: " << _tracksCount << '\n';
 		std::cout<< "Number of shower like clusters: " << _showerCount << '\n';

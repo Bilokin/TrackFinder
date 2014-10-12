@@ -15,7 +15,8 @@ namespace MyCalorimeter
 		TRACKLIKE_CLUSTER,
 		TWOMIPSLIKE_CLUSTER,
 		SHOWERLIKE_CLUSTER,
-		MERGED_CLUSTER
+		MERGED_CLUSTER,
+		INITIALMIP_CLUSTER
 	};
 
 	class Cluster : public IAssignable 
@@ -44,6 +45,7 @@ namespace MyCalorimeter
 		vector< Pad * > GetAllPads();
 		vector< Pad * > GetPads(float energyCut);
 		vector< Cluster * > & GetMerged();
+		const std::vector< float > * GetAngles() const;
 		void Merge(Cluster * cluster);
 		bool HasPad(Pad * pad);
 		bool HasPad(int x, int y, int z);

@@ -11,12 +11,9 @@ namespace MyCalorimeter
 	//
 	ClusterAnalysisOperator::ClusterAnalysisOperator()
 	{
-		myMergingSineCut = 0.25;
+		myMergingSineCut = 0.15;
 	        myDeviationCutForDoubleTracks = 1.0;
 		myClusters = NULL;
-		mySigmas = new vector<float>();
-		myModules = new vector<float>();
-		myPads = new vector<int>();
 		myMinimumShowerModule = 5.0;
 		myMIPEnergyCut = 2.0;
 	        myMaximumLayerCut=15;
@@ -39,9 +36,6 @@ namespace MyCalorimeter
 			delete cluster;
 		}
 		delete myClusters;
-		delete myModules;
-		delete myPads;
-		delete mySigmas;
 	}
 	//
 	//      Methods
@@ -75,17 +69,24 @@ namespace MyCalorimeter
 			{
 		        	std::cout << "Cluster with id " << cluster->GetID() << " set as valid with " << number <<" pads!\n";
 				float energyCut = 0.0;
-				if (number > myTrackLikeLengthCut && cluster->GetNumberOfPads(myMIPEnergyCut) > myInvalidClusterCut) 
+				/*if (number > myTrackLikeLengthCut && cluster->GetNumberOfPads(myMIPEnergyCut) > myInvalidClusterCut) 
 				{
 					energyCut = myMIPEnergyCut;
-				}
+				}*/
 			        setEndPoints(cluster, energyCut);
 				if (cluster->GetStatus() != MERGED_CLUSTER) 
 				{
 					analyzeForTrack(cluster, energyCut);
-					mergeCluster(cluster,energyCut);
+					//mergeCluster(cluster,energyCut);
 				}
 			}
+		}
+		FindInitialMIP();
+		std::cout << "\nBegin check for merging........................\n";
+		for (int i = 0; i < myClusters->size(); i++) 
+		{
+			Cluster * cluster = myClusters->at(i);
+			mergeCluster(cluster);
 		}
 	}
 
@@ -138,6 +139,37 @@ namespace MyCalorimeter
 		}
 	}
 
+	void ClusterAnalysisOperator::FindInitialMIP()
+	{
+		int minZ = 30;
+		int minID = -1;
+		int secondHalf = 15;
+		for (int i = 0; i < myClusters->size(); i++) 
+		{
+			Cluster * cluster = myClusters->at(i);
+			if ((cluster->GetStatus() == SHOWERLIKE_CLUSTER || cluster->GetStatus() == TRACKLIKE_CLUSTER || cluster->GetStatus() == BLOBLIKE_CLUSTER) && cluster->GetAngles()->at(1) < 0.333333 && cluster->GetEnd()->at(2) < secondHalf) 
+			{
+				if (cluster->GetEnd()->at(2) < minZ) 
+				{
+					minZ = cluster->GetEnd()->at(2);
+					minID = cluster->GetID();
+				}
+			}
+		}
+		if (minID > 0) 
+		{
+			for (int i = 0; i < myClusters->size(); i++) 
+			{
+				Cluster * cluster = myClusters->at(i);
+				if (cluster->GetID() == minID) 
+				{
+					cluster->SetStatus(INITIALMIP_CLUSTER);
+				}
+			}
+			std::cout << "Found an initial MIP with ID " << minID << '\n';
+		}
+	}
+
 	void ClusterAnalysisOperator::mergeCluster(Cluster * cluster,float energyCut)
 	{
 		if(myClusters->size() > 1) 
@@ -145,7 +177,6 @@ namespace MyCalorimeter
 			//Cluster * cluster = myClusters->at(i); 
 			if ((cluster->GetStatus() == TRACKLIKE_CLUSTER) || (cluster->GetStatus() == TWOMIPSLIKE_CLUSTER) ) 
 			{
-				std::cout << "\nBegin check for merging........................\n";
 				//std::cout << "Cluster with id "<<  cluster->GetID() << " is track\n";
 				vector< int > * start = cluster->GetStart();
 				vector< int > * end = cluster->GetEnd();
@@ -197,6 +228,10 @@ namespace MyCalorimeter
 			{
 				return false; // Delete for muons!!!
 			}
+			if (another->GetStatus() == INITIALMIP_CLUSTER || another->GetStatus() == MERGED_CLUSTER) 
+			{
+				return false;
+			}
 			float anotherDeviation = getDeviationOfCluster(another, direction, start, energyCut);
 		 	float distanceFromEnd = getMeanDistance(end, another);
 			float distanceFromStart = getMeanDistance(start, another);
@@ -209,7 +244,7 @@ namespace MyCalorimeter
 	                float module = MathOperator::getModule(vector1);
 			float observable = sqrt(distanceFromEnd*distanceFromEnd-anotherDeviation*anotherDeviation)+sqrt(distanceFromStart*distanceFromStart-anotherDeviation*anotherDeviation) - 0.5;
 			
-			std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
+			//std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
 			bool result = ( sine < myMergingSineCut ) && ( observable > module);
 			return result;
 		}
