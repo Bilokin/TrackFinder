@@ -46,6 +46,7 @@ namespace MyCalorimeter
 			int myTrackLikeLengthCut;
 			int myMaximumLayerCut;
 			int myDeviationIndex;
+			int myLastInitMIPSearchLayer;
 			vector< Cluster * > * myClusters;
 			vector<int> * myPads;
 			vector<float> * myModules;

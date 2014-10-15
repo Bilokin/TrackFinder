@@ -17,12 +17,13 @@ namespace MyCalorimeter
 		myMinimumShowerModule = 5.0;
 		myMIPEnergyCut = 2.0;
 	        myMaximumLayerCut=15;
-	        myEpsilonTL = 0.02; 
+	        myEpsilonTL = 0.025; 
 		myTrackLikeLengthCut = 15;
 	        myTrackLikenessCut = 1.0;
 		myTrackLikenessCutForDoubleTracks = 0.55;
 	        myInvalidClusterCut = 3;
 		myDeviationIndex = 1.55;
+		myLastInitMIPSearchLayer = 8;
 	}
 	
 	ClusterAnalysisOperator::~ClusterAnalysisOperator()
@@ -143,7 +144,7 @@ namespace MyCalorimeter
 	{
 		int minZ = 30;
 		int minID = -1;
-		int secondHalf = 15;
+		int secondHalf = myLastInitMIPSearchLayer;
 		for (int i = 0; i < myClusters->size(); i++) 
 		{
 			Cluster * cluster = myClusters->at(i);

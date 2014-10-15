@@ -72,6 +72,7 @@ namespace CALICE {
 	float MIPEnergyCut;
 	TFile* hfile ;
         std::string _hfilename ;
+        std::string filename ;
         TTree* _Tree;
         //TTree* _MCTree;
         static const int MAXN = 10000 ;

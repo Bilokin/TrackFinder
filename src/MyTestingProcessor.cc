@@ -56,7 +56,11 @@ namespace CALICE {
 			"MIP Energy Cut",
 			MIPEnergyCut,
 			MIPEnergyCut);
-		
+		filename = "Test.root";	
+		registerProcessorParameter( "FileName",
+			"Name of output file",
+			filename,
+			filename);
 		registerProcessorParameter( "FirstInteractionLayer",
 			"Limit on interaction layer",
 			FirstInteractionLayer,
@@ -64,7 +68,7 @@ namespace CALICE {
 	}
 	void MyTestingProcessor::init() 
 	{
-		string _hfilename = "Test.root";
+		string _hfilename = filename;
 		hfile = new TFile( _hfilename.c_str(), "RECREATE", _hfilename.c_str() ) ;
 	        _Tree = new TTree( "TestTree", "My test tree!" );
 	        _Tree->Branch("nhits", &_nhits, "nhits/I");
