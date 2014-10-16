@@ -17,7 +17,7 @@ namespace MyCalorimeter
 		//	Constructors
 		//
 			ClusterOperator ();
-			ClusterOperator (float MIPEnergyCut = 2.0, int LayerCut = 15);
+			ClusterOperator (float MIPEnergyCut = 2.0, int LayerCut = 15, int InteractionLayer = 0);
 			virtual ~ClusterOperator ();
 		//
 		//	Methods

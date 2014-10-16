@@ -213,17 +213,18 @@ namespace CALICE {
 	void MyTestingProcessor::processCalorimeterHits(int InteractionZ, int numberOfHits)
 	{
 		goodEventCount++;
-		if (InteractionZ < 0 || InteractionZ > ECalCopy.GetDimensions()[2])
+		/*if (InteractionZ < 0 || InteractionZ > ECalCopy.GetDimensions()[2])
 		{
 		        InteractionZ = 15;
-		}
-		MyCalorimeter::ClusterOperator opera(MIPEnergyCut, 2);
+		}*/
+		int endLayer = 2;
+		MyCalorimeter::ClusterOperator opera(MIPEnergyCut, endLayer, InteractionZ);
 		std::cout<< "===============================================\n";
 		std::cout<< "Processing event #" << goodEventCount << '\n';
 		std::cout<< "===============================================\n";
 		writeCalorimeter(numberOfHits);
 		std::cout<< "Begin Clusterization\n";
-		for (int i = ECalCopy.GetDimensions()[2]-1; i > 2; i--)
+		for (int i = ECalCopy.GetDimensions()[2]-1; i > endLayer; i--)
 		{
 			vector< MyCalorimeter::Pad * > pads = ECalCopy.GetActivePadsFromLayer(i);
 			std::cout<< "Processing layer " << i << " with " << pads.size() << " pads...\n";

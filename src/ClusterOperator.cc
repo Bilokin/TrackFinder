@@ -10,10 +10,10 @@ namespace MyCalorimeter
 	{
 
 	}
-	ClusterOperator::ClusterOperator(float MIPEnergyCut, int LayerCut)
+	ClusterOperator::ClusterOperator(float MIPEnergyCut, int LayerCut, int Interaction)
 	{
 		myClusterizator.Initialize(LayerCut);
-		myAnalysis.Initialize(MIPEnergyCut);
+		myAnalysis.Initialize(MIPEnergyCut, Interaction);
 	}
 	ClusterOperator::~ClusterOperator()
 	{

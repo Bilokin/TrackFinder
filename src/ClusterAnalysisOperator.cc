@@ -24,6 +24,7 @@ namespace MyCalorimeter
 	        myInvalidClusterCut = 3;
 		myDeviationIndex = 1.55;
 		myLastInitMIPSearchLayer = 8;
+		myInteractionLayer = -1;
 	}
 	
 	ClusterAnalysisOperator::~ClusterAnalysisOperator()
@@ -41,9 +42,10 @@ namespace MyCalorimeter
 	//
 	//      Methods
 	//
-	void ClusterAnalysisOperator::Initialize(float MIPEnergyCut)
+	void ClusterAnalysisOperator::Initialize(float MIPEnergyCut, int Interaction)
 	{
 		myMIPEnergyCut = MIPEnergyCut;
+		myInteractionLayer = Interaction;
 	}
 	int ClusterAnalysisOperator::GetNumberOfClusters()
 	{
@@ -142,6 +144,11 @@ namespace MyCalorimeter
 
 	void ClusterAnalysisOperator::FindInitialMIP()
 	{
+		if (myInteractionLayer < 3 && myInteractionLayer > -1) 
+		{
+			std::cout << "Interaction Layer is " << myInteractionLayer << ", so initial mip searches does not run.\n";
+			return;
+		}
 		int minZ = 30;
 		int minID = -1;
 		int secondHalf = myLastInitMIPSearchLayer;

@@ -20,7 +20,7 @@ namespace MyCalorimeter
 		//
 		//	Methods
 		//
-			void Initialize(float MIPEnergyCut = 2.0);
+			void Initialize(float MIPEnergyCut = 2.0, int Interaction = 0);
 			void AnalyzeAllClusters(vector< Cluster * > * clusters);
 			int GetTrackLikeClusters();
 			int GetShowerLikeClusters();
@@ -47,6 +47,7 @@ namespace MyCalorimeter
 			int myMaximumLayerCut;
 			int myDeviationIndex;
 			int myLastInitMIPSearchLayer;
+			int myInteractionLayer;
 			vector< Cluster * > * myClusters;
 			vector<int> * myPads;
 			vector<float> * myModules;
