@@ -144,11 +144,12 @@ namespace MyCalorimeter
 
 	void ClusterAnalysisOperator::FindInitialMIP()
 	{
-		if (myInteractionLayer < 3 && myInteractionLayer > -1) 
+		/* Due to problem in Interaction finder.
+		 * if (myInteractionLayer < 3 && myInteractionLayer > -1) 
 		{
 			std::cout << "Interaction Layer is " << myInteractionLayer << ", so initial mip searches does not run.\n";
 			return;
-		}
+		}*/
 		int minZ = 30;
 		int minID = -1;
 		int secondHalf = myLastInitMIPSearchLayer;
