@@ -32,6 +32,14 @@ namespace MyCalorimeter
 			cluster.SetStartPoint(myStart->at(0),myStart->at(1),myStart->at(2));
 			cluster.SetAngles(myAngles);
 			cluster.Initialize(myType,myNumberAfterCut,mySigma,myLength);
+			float average = 0.0;
+			for (int i = 0; i < myPads.size(); i++) 
+			{
+				average += myPads[i]->GetEnergy();
+			}
+			average /= (float)myPads.size();
+			//std::cout << "Energy: " << average << '\n';
+			cluster.SetAverageEnergy(average);
 		}
 		else 
 		{

@@ -7,6 +7,7 @@ namespace MyCalorimeter
 	{
 		SetEndPoint(-1,-1,-1);
 		SetStartPoint(-1,-1,-1);
+		myEnergy = 0.0;
 	}
 	
 	TCluster::TCluster(int type, int number, float sigma, float length)
@@ -38,7 +39,14 @@ namespace MyCalorimeter
 		myAngles[0] = angles[0];
 		myAngles[1] = angles[1];
 	}
-
+	void TCluster::SetAverageEnergy(float energy)
+	{
+		myEnergy = energy;
+	}
+	Float_t TCluster::GetAverageEnergy()
+	{
+		return myEnergy;
+	}
 	Float_t * TCluster::GetAngles()
 	{
 		return myAngles;

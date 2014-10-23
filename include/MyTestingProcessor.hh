@@ -69,6 +69,7 @@ namespace CALICE {
 	int LastEventsFromLayer;
 	int FirstInteractionLayer;
 	int RequireInteraction;
+	int RejectDoubleEvents;
 	float MIPEnergyCut;
 	TFile* hfile ;
         std::string _hfilename ;
@@ -103,6 +104,7 @@ namespace CALICE {
 	int _endZ[MINN];
 	float _teta[MINN];
 	float _phi[MINN];
+	float _ecluster[MINN];
 	int _nspads;
 	int _posx2[MINN]; // hit position x, in mm, 0 is the center of ECAL
 	int _posy2[MINN]; // hit position y, in mm, 0 is the center of ECAL

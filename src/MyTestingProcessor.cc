@@ -47,6 +47,10 @@ namespace CALICE {
 			"Count events from layer #",
 			LastEventsFromLayer,
 			LastEventsFromLayer);
+		registerProcessorParameter( "RejectDoubleEvents",
+		        "Select events with multiple particles? 0 or 1",
+			RejectDoubleEvents,
+			RejectDoubleEvents);
 		registerProcessorParameter( "RequireInteraction",
 		        "Select events with interaction? 0 or 1",
 			RequireInteraction,
@@ -93,6 +97,7 @@ namespace CALICE {
 		_Tree->Branch("endZ",_endZ,"_endZ[clusterTotal]/I");
 		_Tree->Branch("phi",_phi,"_phi[clusterTotal]/F");
 		_Tree->Branch("teta",_teta,"_teta[clusterTotal]/F");
+		_Tree->Branch("ecluster",_ecluster,"_ecluster[clusterTotal]/F");
 		//_Tree->Branch("clusters", _clusters);
 		printParameters();
 		goodEventCount=0;
@@ -129,15 +134,22 @@ namespace CALICE {
 			{
 				float energy = 0.0;
 				int count = 0;
+				//_colName = "SelectedCalorimeterHits";
 				LCCollection* col_hits = evtP->getCollection( _colName ) ;
 				CellIDDecoder<CalorimeterHit> cd(col_hits);
 				
 				int IsInteraction = col_hits->parameters().getIntVal("isInteraction");
 				int InteractionZ = col_hits->parameters().getIntVal("InteractionLayer");
+				int DoubleEvent =  col_hits->parameters().getIntVal("DoubleEvent");
 				if (!RequireInteraction) 
 				{
 					IsInteraction = 1;
 					FirstInteractionLayer = 55;
+				}
+				if (DoubleEvent == 1 && RejectDoubleEvents) 
+				{
+					std::cout<< "This is double event!!!!!!!!!!!!!!!\n";
+					return;
 				}
 				if(IsInteraction && InteractionZ < FirstInteractionLayer)
 				{
@@ -245,6 +257,8 @@ namespace CALICE {
 			_type[i] =  clusters->at(i)->GetType();
 			_phi[i] = clusters->at(i)->GetAngles()[0];
 			_teta[i] = clusters->at(i)->GetAngles()[1];
+			_ecluster[i] = clusters->at(i)->GetAverageEnergy();
+			std::cout << "Energy: " << clusters->at(i)->GetAverageEnergy() << '\n';
 			//std::cout<< "Number: " << clusters->at(i)->GetNumberOfPads() << " type: " << clusters->at(i)->GetType()<< '\n';
 			if (_number[i] > 2) 
 			{
