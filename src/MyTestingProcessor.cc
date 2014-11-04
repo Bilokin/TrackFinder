@@ -273,6 +273,13 @@ namespace CALICE {
 		std::cout<< "Number of track like clusters: " << _tracksCount << '\n';
 		std::cout<< "Number of shower like clusters: " << _showerCount << '\n';
 		_Tree->Fill();
+		for (int i = clusters->size()-1; i > -1; i--)
+		{
+			TCluster * cluster = clusters->at(i);
+			clusters->pop_back();
+			delete cluster;
+		}
+		delete clusters;
 		for (int i = 0; i < 30; i++)
 		{
 		        _energyDep[i]=0.0;

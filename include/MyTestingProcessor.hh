@@ -17,6 +17,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+using namespace lcio;
 namespace CALICE {
                                                               
   /** A processor to find the outgoing particles (mip) 
