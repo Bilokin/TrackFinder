@@ -12,17 +12,16 @@ namespace MyCalorimeter
 	ClusterAnalysisOperator::ClusterAnalysisOperator()
 	{
 		myMergingSineCut = 0.15;
-	        myDeviationCutForDoubleTracks = 1.0;
+	        myDeviationCutForDoubleTracks = 1.2;
 		myClusters = NULL;
 		myMinimumShowerModule = 5.0;
 		myMIPEnergyCut = 2.0;
 	        myMaximumLayerCut=15;
-	        myEpsilonTL = 0.025; 
+	        myEpsilonTL = 0.028; 
 		myTrackLikeLengthCut = 15;
 	        myTrackLikenessCut = 1.0;
 		myTrackLikenessCutForDoubleTracks = 0.55;
 	        myInvalidClusterCut = 3;
-		myDeviationIndex = 1.55;
 		myLastInitMIPSearchLayer = 8;
 		myInteractionLayer = -1;
 	}
@@ -112,22 +111,24 @@ namespace MyCalorimeter
 			vector< float > directionFloat = MathOperator::getDirection(*start, *end);
 			vector< float > angles = MathOperator::getAngles(directionFloat);
 			cluster->SetPropertiesForSave(module,trackLikeness,numberOfPads, angles[0], angles[1]);
+			float deviation = getDeviationOfCluster(cluster, directionFloat, start, energyCut);
 			if (trackLikeness > myTrackLikenessCut)// - myInvalidClusterCut))
 			{
-				std::cout << "Cluster set as track like with " << trackLikeness << " probability\n";
+				std::cout << "Cluster set as track like with " << trackLikeness << " probability and deviation " << deviation << '\n';
 				cluster->SetStatus(TRACKLIKE_CLUSTER);
-			}
-			else 
+			
+			if (( deviation < myDeviationCutForDoubleTracks ) && ( module > (float)myMaximumLayerCut ) && ( trackLikeness - myEpsilonTL*numberOfPads < myTrackLikenessCutForDoubleTracks) ) 
 			{
-				float deviation = getDeviationOfCluster(cluster, directionFloat, start, energyCut);
-				if (( deviation < myDeviationCutForDoubleTracks ) && ( module > (float)myMaximumLayerCut ) && ( trackLikeness - myEpsilonTL*numberOfPads < myTrackLikenessCutForDoubleTracks) ) 
+				std::cout << "Cluster set as DOUBLE track like with " << trackLikeness << " probability and deviation " << deviation << "\n";
+				cluster->SetStatus(TWOMIPSLIKE_CLUSTER);
+			}
+			return;
+			}
+			//else 
+			{
+				//else
 				{
-					std::cout << "Cluster set as DOUBLE track like with " << trackLikeness << " probability and deviation " << deviation << "\n";
-					cluster->SetStatus(TWOMIPSLIKE_CLUSTER);
-				}
-				else
-				{
-					if (( module > myMinimumShowerModule) && (trackLikeness - myEpsilonTL*numberOfPads < myTrackLikenessCutForDoubleTracks) ) 
+					if (( module > myMinimumShowerModule) && (trackLikeness < myTrackLikenessCut) ) 
 					{
 						std::cout << "Cluster set as showerlike with " << trackLikeness << " probability and deviation " << deviation << "\n";
 						cluster->SetStatus(SHOWERLIKE_CLUSTER);
