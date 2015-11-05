@@ -9,14 +9,14 @@ namespace MyCalorimeter
 {
 	enum ClusterType
 	{
-		UNDEFINED_CLUSTER,
-		INVALID_CLUSTER,
-		BLOBLIKE_CLUSTER,
-		TRACKLIKE_CLUSTER,
-		TWOMIPSLIKE_CLUSTER,
-		SHOWERLIKE_CLUSTER,
-		MERGED_CLUSTER,
-		INITIALMIP_CLUSTER
+		UNDEFINED_CLUSTER,    //0
+		INVALID_CLUSTER,      //1
+		BLOBLIKE_CLUSTER,     //2
+		TRACKLIKE_CLUSTER,    //3
+		TWOMIPSLIKE_CLUSTER,  //4
+		SHOWERLIKE_CLUSTER,   //5
+		MERGED_CLUSTER,       //6 
+		INITIALMIP_CLUSTER    //7
 	};
 
 	class Cluster : public IAssignable 
@@ -41,15 +41,20 @@ namespace MyCalorimeter
 		int GetID();
 		vector< int > * GetStart();
 		vector< int > * GetEnd();
+		const Pad * GetStartPad() const ;
+		const Pad * GetEndPad() const;
 		int GetNumberOfPads(float energyCut = 0.0);
 		vector< Pad * > GetAllPads();
 		vector< Pad * > GetPads(float energyCut);
 		vector< Cluster * > & GetMerged();
+		void SetInnerAngles(std::vector< float > angles);
+		const std::vector< float > * GetInnerAngles() const;
 		const std::vector< float > * GetAngles() const;
 		void Merge(Cluster * cluster);
 		bool HasPad(Pad * pad);
 		bool HasPad(int x, int y, int z);
 		void SetEndPoints(vector< int > * one, vector < int > * two);
+		void SetEndPads( Pad * start, Pad * end);
 		ClusterType GetStatus() const;
 		void SetStatus(ClusterType type);
 		private:
@@ -58,11 +63,13 @@ namespace MyCalorimeter
 		vector< int > * myEnd;
 		vector< Pad * > myPads;
 		vector< Cluster * > myMerged;
-		
+		Pad * myStartPad;		
+		Pad * myEndPad;		
 		float myLength;
 		float mySigma;
 		int myNumberAfterCut;
 		std::vector< float > myAngles;
+		std::vector< float > myInnerAngles;
 		ClusterType myType;
 	};
 }

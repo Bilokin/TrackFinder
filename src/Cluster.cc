@@ -11,6 +11,8 @@ namespace MyCalorimeter
 		//myMerged = new vector< Cluster *>();
 		myStart = NULL;
 		myEnd = NULL;
+		myStartPad = NULL;
+		myEndPad = NULL;
 		myID = id;
 		myType = UNDEFINED_CLUSTER;
 	}
@@ -33,11 +35,35 @@ namespace MyCalorimeter
 			cluster.SetAngles(myAngles);
 			cluster.Initialize(myType,myNumberAfterCut,mySigma,myLength);
 			float average = 0.0;
+			int nhits = 0;
 			for (int i = 0; i < myPads.size(); i++) 
 			{
+				if (myPads[i]->GetCoordinates()[0] == myEnd->at(0) && 
+				    myPads[i]->GetCoordinates()[1] == myEnd->at(1) &&
+				    myPads[i]->GetCoordinates()[2] == myEnd->at(2)) 
+				{
+					//std::cout << "Excluded!\n";
+					continue;
+				}
+				//std::cout << "StartZ: " <<  myEnd->at(2) << "\n";
+				if (myPads[i]->GetCoordinates()[2] < myEnd->at(2) + 5) 
+				{
+					continue;
+				}
 				average += myPads[i]->GetEnergy();
+				nhits++;
 			}
-			average /= (float)myPads.size();
+			//average /= myLength;
+			average /= (float)(nhits);
+			if (nhits == 0) 
+			{
+				for (int i = 0; i < myPads.size(); i++) 
+				{
+					average += myPads[i]->GetEnergy();
+				}
+				average /= (float)myPads.size();
+			}
+			//average /= (float)(myPads.size() - 1);
 			//std::cout << "Energy: " << average << '\n';
 			cluster.SetAverageEnergy(average);
 		}
@@ -148,6 +174,19 @@ namespace MyCalorimeter
 		myStart = one;
 		myEnd = two;
 	}
+	const Pad * Cluster::GetStartPad() const
+	{
+		return myStartPad;
+	}
+	const Pad * Cluster::GetEndPad() const 
+	{
+		return myEndPad;
+	}
+	void Cluster::SetEndPads( Pad * start, Pad * end)
+	{
+		myStartPad = start;
+		myEndPad = end;
+	}
 
 	
 	int Cluster::GetNumberOfPads(float energyCut)
@@ -165,6 +204,14 @@ namespace MyCalorimeter
 			}
 		}
 		return count;
+	}
+	void Cluster::SetInnerAngles(std::vector< float > angles)
+	{
+		myInnerAngles = angles;
+	}
+	const std::vector< float > * Cluster::GetInnerAngles() const
+	{
+		return &myInnerAngles;
 	}
 
 	void Cluster::SetPropertiesForSave(float length, float sigma, int number, float phi, float teta)

@@ -20,7 +20,7 @@ namespace MyCalorimeter
 		//
 		//	Methods
 		//
-			void Initialize(float MIPEnergyCut = 2.0, int Interaction = 0);
+			void Initialize(float MIPEnergyCut = 2.0, int Interaction = 0, float epsilonCut = 0.028);
 			void AnalyzeAllClusters(vector< Cluster * > * clusters);
 			int GetTrackLikeClusters();
 			int GetShowerLikeClusters();
@@ -48,6 +48,7 @@ namespace MyCalorimeter
 			int myDeviationIndex;
 			int myLastInitMIPSearchLayer;
 			int myInteractionLayer;
+			float myModuleCut;
 			vector< Cluster * > * myClusters;
 			vector<int> * myPads;
 			vector<float> * myModules;
@@ -64,6 +65,7 @@ namespace MyCalorimeter
 			
 			void setEndPoints(Cluster * cluster,  float energyCut = 0.0);
 			vector< vector < int > > getEndPoints(Cluster * cluster, float energyCut = 0.0);
+			vector< Pad* > getEndPads(Cluster * cluster);
 			float getDeviationOfCluster(Cluster * cluster, vector< float > & vector1, vector< int > * start, float energyCut = 0.0);
 			bool checkIfClustersCanMerge(vector<int> *start, vector<int> *end , vector< float >  & direction, Cluster * another, float energyCut = 0.0);
 			float getMeanDistance(vector<int> * from, Cluster * to);

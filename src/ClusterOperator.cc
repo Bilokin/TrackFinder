@@ -10,10 +10,10 @@ namespace MyCalorimeter
 	{
 
 	}
-	ClusterOperator::ClusterOperator(float MIPEnergyCut, int LayerCut, int Interaction)
+	ClusterOperator::ClusterOperator(float MIPEnergyCut, int LayerCut, int Interaction, float epsilonCut)
 	{
 		myClusterizator.Initialize(LayerCut);
-		myAnalysis.Initialize(MIPEnergyCut, Interaction);
+		myAnalysis.Initialize(MIPEnergyCut, Interaction, epsilonCut);
 	}
 	ClusterOperator::~ClusterOperator()
 	{
@@ -61,6 +61,10 @@ namespace MyCalorimeter
 	int ClusterOperator::GetTrackLikeClusters()
 	{
 		return myAnalysis.GetTrackLikeClusters();
+	}
+	vector<Cluster*> * ClusterOperator::GetClusters()
+	{
+		return myAnalysis.GetClusters();
 	}
 	vector<TCluster*> * ClusterOperator::GetTClusters()
 	{

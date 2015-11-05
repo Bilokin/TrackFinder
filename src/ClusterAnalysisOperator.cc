@@ -11,7 +11,7 @@ namespace MyCalorimeter
 	//
 	ClusterAnalysisOperator::ClusterAnalysisOperator()
 	{
-		myMergingSineCut = 0.15;
+		myMergingSineCut = 0.15; // NOT CHANGED
 	        myDeviationCutForDoubleTracks = 1.2;
 		myClusters = NULL;
 		myMinimumShowerModule = 5.0;
@@ -21,9 +21,10 @@ namespace MyCalorimeter
 		myTrackLikeLengthCut = 15;
 	        myTrackLikenessCut = 1.0;
 		myTrackLikenessCutForDoubleTracks = 0.55;
-	        myInvalidClusterCut = 3;
+	        myInvalidClusterCut = 3; ///NOT CHANGED
 		myLastInitMIPSearchLayer = 8;
 		myInteractionLayer = -1;
+		myModuleCut = 1.9;
 	}
 	
 	ClusterAnalysisOperator::~ClusterAnalysisOperator()
@@ -41,10 +42,11 @@ namespace MyCalorimeter
 	//
 	//      Methods
 	//
-	void ClusterAnalysisOperator::Initialize(float MIPEnergyCut, int Interaction)
+	void ClusterAnalysisOperator::Initialize(float MIPEnergyCut, int Interaction, float epsilonCut)
 	{
 		myMIPEnergyCut = MIPEnergyCut;
 		myInteractionLayer = Interaction;
+		myEpsilonTL = epsilonCut;
 	}
 	int ClusterAnalysisOperator::GetNumberOfClusters()
 	{
@@ -96,6 +98,8 @@ namespace MyCalorimeter
 	{
 		vector< int > * start = cluster->GetStart();
 		vector< int > * end = cluster->GetEnd();
+		const Pad * startPad = cluster->GetStartPad();
+		const Pad * endPad = cluster->GetEndPad();
 		if (start && end) 
 		{
 			vector < int > direction;
@@ -104,25 +108,38 @@ namespace MyCalorimeter
 				direction.push_back(start->at(i) - end->at(i));
 			}
 			float module = MathOperator::getModule(direction);
+			if (module < myModuleCut) 
+			{
+				cluster->SetStatus(INVALID_CLUSTER);
+				return;
+			}
 			int numberOfPads = cluster->GetNumberOfPads(energyCut);
 			std::cout << "Start analyzing for tracks... Cluster has " << numberOfPads << " mip pads out of " << cluster->GetNumberOfPads() << " pads total\n";
 			std::cout << "Cluster module: " << module << '\n';
 			float trackLikeness = module / (float)( numberOfPads - 1 ) + myEpsilonTL*numberOfPads;
-			vector< float > directionFloat = MathOperator::getDirection(*start, *end);
+			vector< float > directionInt = MathOperator::getDirection(*start, *end);
+			vector< float > directionFloat = MathOperator::getDirection(startPad->GetRealCoordinates(), endPad->GetRealCoordinates());
 			vector< float > angles = MathOperator::getAngles(directionFloat);
-			cluster->SetPropertiesForSave(module,trackLikeness,numberOfPads, angles[0], angles[1]);
-			float deviation = getDeviationOfCluster(cluster, directionFloat, start, energyCut);
+			cluster->SetInnerAngles(MathOperator::getAngles(directionInt));
+			cluster->SetPropertiesForSave(module,trackLikeness - myEpsilonTL*numberOfPads,numberOfPads, angles[0], angles[1]);
+			float deviation = getDeviationOfCluster(cluster, directionInt, start, energyCut);
+			if (numberOfPads == 3 && deviation > 0.3) 
+			{
+				std::cout << "3 pads cluster with deviation " << deviation << " marked as NOT tracklike\n";
+				cluster->SetStatus(INVALID_CLUSTER);
+				return;
+			}
 			if (trackLikeness > myTrackLikenessCut)// - myInvalidClusterCut))
 			{
 				std::cout << "Cluster set as track like with " << trackLikeness << " probability and deviation " << deviation << '\n';
 				cluster->SetStatus(TRACKLIKE_CLUSTER);
 			
-			if (( deviation < myDeviationCutForDoubleTracks ) && ( module > (float)myMaximumLayerCut ) && ( trackLikeness - myEpsilonTL*numberOfPads < myTrackLikenessCutForDoubleTracks) ) 
-			{
-				std::cout << "Cluster set as DOUBLE track like with " << trackLikeness << " probability and deviation " << deviation << "\n";
-				cluster->SetStatus(TWOMIPSLIKE_CLUSTER);
-			}
-			return;
+				if (( deviation < myDeviationCutForDoubleTracks ) && ( module > (float)myMaximumLayerCut ) && ( trackLikeness - myEpsilonTL*numberOfPads < myTrackLikenessCutForDoubleTracks) ) 
+				{
+					std::cout << "Cluster set as DOUBLE track like with " << trackLikeness << " probability and deviation " << deviation << "\n";
+					cluster->SetStatus(TWOMIPSLIKE_CLUSTER);
+				}
+				return;
 			}
 			//else 
 			{
@@ -157,7 +174,7 @@ namespace MyCalorimeter
 		for (int i = 0; i < myClusters->size(); i++) 
 		{
 			Cluster * cluster = myClusters->at(i);
-			if ((cluster->GetStatus() == SHOWERLIKE_CLUSTER || cluster->GetStatus() == TRACKLIKE_CLUSTER || cluster->GetStatus() == BLOBLIKE_CLUSTER) && cluster->GetAngles()->at(1) < 0.333333 && cluster->GetEnd()->at(2) < secondHalf) 
+			if ((cluster->GetStatus() == SHOWERLIKE_CLUSTER || cluster->GetStatus() == TRACKLIKE_CLUSTER || cluster->GetStatus() == BLOBLIKE_CLUSTER) && cluster->GetInnerAngles()->at(1) < 0.333333 && cluster->GetEnd()->at(2) < secondHalf) 
 			{
 				if (cluster->GetEnd()->at(2) < minZ) 
 				{
@@ -252,7 +269,7 @@ namespace MyCalorimeter
 	                        vector1.push_back((float)(start->at(i) - end->at(i)));
 	                }
 	                float module = MathOperator::getModule(vector1);
-			float observable = sqrt(distanceFromEnd*distanceFromEnd-anotherDeviation*anotherDeviation)+sqrt(distanceFromStart*distanceFromStart-anotherDeviation*anotherDeviation) - 0.5;
+			float observable = sqrt(distanceFromEnd*distanceFromEnd-anotherDeviation*anotherDeviation)+sqrt(distanceFromStart*distanceFromStart-anotherDeviation*anotherDeviation) - 0.5; /// NOT CHANGED
 			
 			//std::cout << "Cluster with id " <<  another->GetID() << " has sine angle of " << sine << " and observable " << observable << " (" << module <<")\n";
 			bool result = ( sine < myMergingSineCut ) && ( observable > module);
@@ -360,24 +377,66 @@ namespace MyCalorimeter
 	{
 		return myClusters;
 	}
+	vector< Pad* > ClusterAnalysisOperator::getEndPads(Cluster * cluster)
+	{
+		vector< Pad* > result;
+		float distancePrevious = 0.0;
+		Pad * start = NULL;
+		Pad * end = NULL;
+		if (!cluster) 
+		{
+			return result;
+		}
+		vector <Pad*> pads = cluster->GetAllPads();
+		vector< int > point = pads[0]->GetCoordinates();
+		vector< int > initial(point);
+		vector< int > final(point);
+		for (int i = 0; i < pads.size(); i++)
+		{
+			for (int j = i+1; j < pads.size(); j++)
+			{
+				float distance = 0.0;
+				for (int k = 0; k < 3; k++)
+				{
+					distance += (pads[i]->GetCoordinates()[k] - pads[j]->GetCoordinates()[k]) * (pads[i]->GetCoordinates()[k] - pads[j]->GetCoordinates()[k]);
+				}
+				if (distance > distancePrevious)
+				{
+					//for (int k = 0; k < 3; k++)
+					//{
+					//	initial[k] = pads[i]->GetCoordinates()[k];
+					//	final[k] = pads[j]->GetCoordinates()[k];
+					//}
+					start = pads[i];
+					end = pads[j];
+					distancePrevious = distance;
+				}
+			}
+		}
+		result.push_back(start);
+		result.push_back(end);
+		return result;
+	}
 
 	void ClusterAnalysisOperator::setEndPoints(Cluster * cluster, float energyCut)
 	{
 		if (cluster) 
 		{
-			vector< vector< int > > points = getEndPoints(cluster, energyCut);
+			//vector< vector< int > > points = getEndPoints(cluster, energyCut);
+			vector< Pad* > pads = getEndPads(cluster);
 			 //std::cout << "Setting end points... start: ";
-			 for (int i = 0; i < 3; i++) 
-			 {
-			 	std::cout << points[0][i] << ' ';
-			 }
+			 //for (int i = 0; i < 3; i++) 
+			 //{
+			 	//std::cout << points[0][i] << "-" << pads[0]->GetCoordinates()[i] << ' ';
+			 //}
 			 //std::cout << "end: ";
-			 for (int i = 0; i < 3; i++) 
-			 {	
-			 	std::cout << points[1][i] << ' ';
-			 }
+			 //for (int i = 0; i < 3; i++) 
+			 //{	
+			 	//std::cout << points[1][i] << "-" << pads[1]->GetCoordinates()[i]<< ' ';
+			 //}
 			 //std::cout << " \n";
-			cluster->SetEndPoints(new vector< int >(points[0]), new vector< int >(points[1]));
+			cluster->SetEndPoints(new vector< int >(pads[0]->GetCoordinates()), new vector< int >(pads[1]->GetCoordinates()));
+			cluster->SetEndPads(pads[0] ,pads[1]);
 		}
 	}
 

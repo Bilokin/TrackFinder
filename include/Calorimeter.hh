@@ -25,12 +25,13 @@ namespace MyCalorimeter
 			void Initialize(int xNumberOfPads, int yNumberOfPads, int zNumberOfPads, vector< vector< float > > * regionForCalorimeter);
 			Pad * GetPad(int x, int y, int z);
 			void LightThePad(const float position[3], float energy);
-			void LightThePad(int x, int y, int z, float energy);
+			void LightThePad(int x, int y, int z, float energy, const float * realposition = NULL);
 			void DimAllPads();
 			vector< int > GetDimensions() const;
 			bool HasPad(int x, int y, int z);
 			vector< Pad * >* GetPads();
 			vector< Pad * > * GetTrackPads();
+			vector< Pad * > * GetInteractionPads();
 			int GetNumberOfActivePadsSince(int z);
 			vector< Pad* > GetActivePadsFromLayer(int z);
 			vector< float > * GetPadPosition(vector < int > & coordinatesOfPad);

@@ -17,7 +17,7 @@ namespace MyCalorimeter
 			}
 			Calorimeter::Calorimeter(int xNumberOfPads, int yNumberOfPads, int zNumberOfPads, vector< vector< float > > * regionForCalorimeter)
 			{
-				myShowerLimit = 6;
+				myShowerLimit = 6; //CHANGED 6
 				Initialize(xNumberOfPads, yNumberOfPads, zNumberOfPads, regionForCalorimeter);
 			}
 			Calorimeter::~Calorimeter () 
@@ -123,6 +123,18 @@ namespace MyCalorimeter
 				}
 				return myTrackPads;
 			}
+			vector< Pad * > * Calorimeter::GetInteractionPads()
+			{
+				vector< Pad * > * result = new vector< Pad * >();
+				for (int i = 0; i < myPositiveEnergyPads->size(); i++) 
+				{
+					if (!myPositiveEnergyPads->at(i)->IsActive()) 
+					{
+						result->push_back(myPositiveEnergyPads->at(i));
+					}
+				}
+				return result;
+			}
 			int Calorimeter::GetNumberOfActivePadsSince(int z)
                         {
                          	//vector< Pad * > * tmp = new vector<Pad * >();
@@ -173,12 +185,16 @@ namespace MyCalorimeter
 				}
 			}
 			
-			void Calorimeter::LightThePad(int x, int y, int z, float energy)
+			void Calorimeter::LightThePad(int x, int y, int z, float energy, const float * realposition)
 			{
 				Pad * pad = Calorimeter::GetPad(x,y,z);
 			//	std::cout << "Z of pad: " << pad->GetCoordinates()[2] << " X of pad: " << pad->GetCoordinates()[0] <<  " X of pad: " << pad->GetCoordinates()[0]
 				if(pad->GetEnergy()==0.0) myPositiveEnergyPads->push_back(pad);
 				pad->SetEnergy(energy+pad->GetEnergy());
+				if (pad->GetRealCoordinates().size() == 0 && realposition) 
+				{
+					pad->SetRealCoordinates(realposition[0], realposition[1], realposition[2]);
+				}
 				if (ExcludeAllShowers) 
 				{
 					checkIfShowerPad(pad);

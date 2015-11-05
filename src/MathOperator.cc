@@ -110,6 +110,20 @@ namespace MyCalorimeter
 		}
 		return vector1;
 	}
+	vector< float > MathOperator::getDirection(const vector< float > & vectorPoint1, const vector< float > & vectorPoint2)
+	{
+		vector< float > vector1;
+		for (int i = 0; i < 3; i++)
+		{
+		        vector1.push_back((vectorPoint1[i] - vectorPoint2[i]));
+		}
+		float module = getModule(vector1);
+		for (int i = 0; i < 3; i++)
+		{
+		        vector1[i] = vector1[i]/module;
+		}
+		return vector1;
+	}
 	
 	vector< float > MathOperator::getDirection(const double * vectorPoint1, const double * vectorPoint2)
 	{

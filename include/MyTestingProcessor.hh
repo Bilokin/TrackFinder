@@ -58,6 +58,9 @@ namespace CALICE {
   private:
 	void processCalorimeterHits(int InteractionZ, int numberOfHits);
 	void writeCalorimeter(int numberOfHits);
+	void writeZone();
+	void ClearVariables();
+	void writeClusters(MyCalorimeter::ClusterOperator & opera);
 	//bool applyPrimaryCutsTo(MCParticle * particle);
 	//void writeParticle(MCParticle * particle, int i);
 	//int applyIntegrationCuts(const vector<MCParticle*> & particle);
@@ -69,13 +72,18 @@ namespace CALICE {
 	int LastFiredPadsNumber;
 	int LastEventsFromLayer;
 	int FirstInteractionLayer;
+	int LowerInteractionLayer;
 	int RequireInteraction;
 	int RejectDoubleEvents;
 	float MIPEnergyCut;
+	float epsilonCut;
+	int hitsCut;
 	TFile* hfile ;
         std::string _hfilename ;
         std::string filename ;
         TTree* _Tree;
+        TTree* _InteractionTree;
+        TTree* _ClusterTree;
         //TTree* _MCTree;
         static const int MAXN = 10000 ;
         static const int MINN = 1000 ;
@@ -85,6 +93,7 @@ namespace CALICE {
 	float _energyHit[MAXN];
 	float _energyHit_exc[MAXN];
 	float _energyDep[30];
+	float _totalEnergy;
 	vector< vector< float > > * volumeECal;
 	int _tracksCount;
 	int _clustersTotal;
@@ -112,6 +121,29 @@ namespace CALICE {
 	int _posz2[MINN]; // hit position z, in mm, starting at the frount of ECAL
 	MyCalorimeter::TCluster _clusters[MAXN];
 
+	int _ipads;
+	int _iposx[MINN]; // hit position x, in mm, 0 is the center of ECAL
+	int _iposy[MINN]; // hit position y, in mm, 0 is the center of ECAL
+	int _iposz[MINN]; // hit position z, in mm, starting at the frount of ECAL
+	float _ix[MINN]; // hit position x, in mm, 0 is the center of ECAL
+	float _iy[MINN]; // hit position y, in mm, 0 is the center of ECAL
+	float _iz[MINN]; // hit position z, in mm, starting at the frount of ECAL
+	float _ienergyHit[MAXN];
+
+	int _nclusters;
+	int _nclusterpads[MINN];
+	int _clustertype[MINN];
+	int _clusterendX[MINN];
+	int _clusterendY[MINN];
+	int _clusterendZ[MINN];
+	int _clusterstartX[MINN];
+	int _clusterstartY[MINN];
+	int _clusterstartZ[MINN];
+
+	float _clustertheta[MINN];
+	float _clusterphi[MINN];
+	float _clusterlength[MINN];
+	float _clusterpadenergy[MINN][MINN];
 	MyCalorimeter::Calorimeter ECalCopy;
 	MyCalorimeter::Calorimeter ECal;
 	std::vector< std::vector< float > > Coordinates;

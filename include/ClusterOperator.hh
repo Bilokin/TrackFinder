@@ -17,7 +17,7 @@ namespace MyCalorimeter
 		//	Constructors
 		//
 			ClusterOperator ();
-			ClusterOperator (float MIPEnergyCut = 2.0, int LayerCut = 15, int InteractionLayer = 0);
+			ClusterOperator (float MIPEnergyCut = 2.0, int LayerCut = 15, int InteractionLayer = 0, float epsilonCut = 0.028);
 			virtual ~ClusterOperator ();
 		//
 		//	Methods
@@ -32,6 +32,7 @@ namespace MyCalorimeter
 		int GetTrackLikeClusters();
 		int GetShowerLikeClusters();
 		vector<TCluster*> * GetTClusters();
+		vector<Cluster*> * GetClusters();
 		private:
 		//
 		//	Data
